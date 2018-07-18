@@ -1,4 +1,4 @@
-defmodule Store do
+defmodule Mnesiac.Store do
   @moduledoc """
   Mnesia Store Manager
   """

@@ -2,9 +2,10 @@ defmodule Mnesiac do
   @moduledoc """
   Mnesiac Manager
   """
-  require Logger
-
   use GenServer
+
+  alias Mnesiac.Logger
+  alias Mnesiac.Store
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -12,13 +13,13 @@ defmodule Mnesiac do
 
   @impl true
   def init(args) do
-    GenServer.cast(__MODULE__, {:init, args})
+    GenServer.call(__MODULE__, {:init, args})
 
     {:ok, []}
   end
 
   @impl true
-  def handle_cast({:init, nodes}, _state) do
+  def handle_call({:init, nodes}, _from, _state) do
     init_mnesia(nodes)
 
     {:noreply, []}
@@ -34,16 +35,6 @@ defmodule Mnesiac do
       end)
 
     case nodes do
-      [h | _t] -> join_cluster(h)
-      [] -> start()
-    end
-  end
-
-  @doc """
-  Start Mnesia with/without a cluster. Test helper.
-  """
-  def init_mnesia(nodes, :test) do
-    case List.delete(List.flatten(nodes), Node.self()) do
       [h | _t] -> join_cluster(h)
       [] -> start()
     end
@@ -78,7 +69,7 @@ defmodule Mnesiac do
       :ok
     else
       {:error, reason} ->
-        Logger.log(:debug, fn -> inspect(reason) end)
+        Logger.debug(reason)
         {:error, reason}
     end
   end
@@ -158,7 +149,7 @@ defmodule Mnesiac do
         :ok
 
       {:error, reason} ->
-        Logger.log(:debug, fn -> inspect(reason) end)
+        Logger.debug(reason)
         {:error, reason}
     end
   end

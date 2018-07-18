@@ -16,6 +16,7 @@ defmodule Mnesiac.MixProject do
         "coveralls.html": :test
       ],
       dialyzer: [plt_add_deps: :transitive],
+      build_embedded: Mix.env == :prod,
       start_permanent: Mix.env() == :prod,
       package: [
         description: "Autoclustering for mnesia made easy!",
@@ -34,8 +35,7 @@ defmodule Mnesiac.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :mnesia],
-      mod: {Mnesiac.Application, []}
+      extra_applications: [:logger, :mnesia]
     ]
   end
 
