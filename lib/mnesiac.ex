@@ -4,11 +4,12 @@ defmodule Mnesiac do
   """
   use GenServer
 
-  alias Mnesiac.Logger
+  import Mnesiac.Logger
+
   alias Mnesiac.Store
 
   def start_link(args) do
-    GenServer.start_link(__MODULE__, args, name: __MODULE__)
+    GenServer.start_link(__MODULE__, args)
   end
 
   @impl true
@@ -69,7 +70,7 @@ defmodule Mnesiac do
       :ok
     else
       {:error, reason} ->
-        Logger.debug(reason)
+        debug(reason)
         {:error, reason}
     end
   end
@@ -149,7 +150,7 @@ defmodule Mnesiac do
         :ok
 
       {:error, reason} ->
-        Logger.debug(reason)
+        debug(reason)
         {:error, reason}
     end
   end

@@ -15,15 +15,24 @@ defmodule Mnesiac.MixProject do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
-      dialyzer: [plt_add_deps: :transitive],
-      build_embedded: Mix.env == :prod,
+      dialyzer: [
+        flags: [
+          "-Wunmatched_returns",
+          "-Werror_handling",
+          "-Wrace_conditions",
+          "-Wno_opaque",
+          "-Wunderspecs"
+        ],
+        plt_add_deps: :transitive
+      ],
+      build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       package: [
         description: "Autoclustering for mnesia made easy!",
         files: ["lib", ".formatter.exs", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md"],
         maintainers: ["beardedeagle"],
         licenses: ["MIT"],
-        links: %{"GitHub" => "https://github.com/beardedeagle/mnesiac"}
+        links: %{GitHub: "https://github.com/beardedeagle/mnesiac"}
       ],
       aliases: [
         check: ["format", "compile --force", "credo --strict --all"],
