@@ -1,6 +1,6 @@
 # Mnesiac
 
-Autoclustering for mnesia made easy! 
+mnesia autoclustering made easy!
 
 Docs can be found at [https://hexdocs.pm/mnesiac](https://hexdocs.pm/mnesiac).
 
