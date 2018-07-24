@@ -52,7 +52,7 @@ defmodule Mnesiac.Store do
   Copy schema
   """
   def copy_schema(cluster_node) do
-    copy_type = Application.get_env(:mnesiam, :schema_type, :ram_copies)
+    copy_type = Application.get_env(:mnesiac, :schema_type, :ram_copies)
 
     case :mnesia.change_table_copy_type(:schema, cluster_node, copy_type) do
       {:atomic, :ok} -> :ok
@@ -79,10 +79,10 @@ defmodule Mnesiac.Store do
   end
 
   defp stores do
-    Application.get_env(:mnesiam, :stores)
+    Application.get_env(:mnesiac, :stores)
   end
 
   defp table_load_timeout do
-    Application.get_env(:mnesiam, :table_load_timeout, 600_000)
+    Application.get_env(:mnesiac, :table_load_timeout, 600_000)
   end
 end
