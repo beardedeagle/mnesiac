@@ -2,29 +2,9 @@ defmodule Mnesiac do
   @moduledoc """
   Mnesiac Manager
   """
-  use GenServer
-
   import Mnesiac.Logger
 
   alias Mnesiac.Store
-
-  def start_link(args) do
-    GenServer.start_link(__MODULE__, args)
-  end
-
-  @impl true
-  def init(args) do
-    GenServer.call(__MODULE__, {:init, args})
-
-    {:ok, []}
-  end
-
-  @impl true
-  def handle_call({:init, nodes}, _from, _state) do
-    init_mnesia(nodes)
-
-    {:noreply, []}
-  end
 
   @doc """
   Start Mnesia with/without a cluster

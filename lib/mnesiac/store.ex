@@ -2,6 +2,7 @@ defmodule Mnesiac.Store do
   @moduledoc """
   Mnesia Store Manager
   """
+
   @doc """
   Init tables
   """

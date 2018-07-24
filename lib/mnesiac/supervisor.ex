@@ -12,8 +12,8 @@ defmodule Mnesiac.Supervisor do
 
   @impl true
   def init([config, opts]) do
+    Mnesiac.init_mnesia(config)
     opts = Keyword.put(opts, :strategy, :one_for_one)
-    children = [{Mnesiam, [config]}]
-    Supervisor.init(children, opts)
+    Supervisor.init([], opts)
   end
 end
