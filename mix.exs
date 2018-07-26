@@ -6,7 +6,7 @@ defmodule Mnesiac.MixProject do
     [
       app: :mnesiac,
       version: "0.1.0",
-      elixir: "~> 1.6",
+      elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -56,7 +56,7 @@ defmodule Mnesiac.MixProject do
       {:libcluster, "~> 3.0.2", optional: true},
       {:credo, "~> 0.9", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.18", only: [:dev], runtime: false},
+      {:ex_doc, "~> 0.19", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.9", only: [:dev, :test], runtime: false}
     ]
   end
