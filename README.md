@@ -123,4 +123,8 @@ If you are not using `libcluster` or similar clustering library then:
 
 - When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia()` function on the *new node*. This will initialize and copy table contents from the other online nodes.
 
+## Notice
+
+This library was built standing on the shoulders of giants. A big thanks goes out to Mustafa Turan. The original library this was forked from can be found here: https://github.com/mustafaturan/mnesiam.
+
 Enjoy!
