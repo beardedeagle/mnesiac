@@ -25,6 +25,44 @@ config :mnesiac,
   table_load_timeout: 600_000 # milliseconds
 ```
 
+And then add `mnesiac` to your supervision tree:
+
+With `libcluster`:
+
+```elixir
+  ...
+
+    topology = Application.get_env(:libcluster, :topologies)
+    hosts = topology[:myapp][:config][:hosts]
+
+    children = [
+      {Cluster.Supervisor, [topology, [name: MyApp.ClusterSupervisor]]},
+      {Mnesiac.Supervisor, [hosts, [name: MyApp.MnesiacSupervisor]]},
+      ..other children..
+    ]
+
+  ...
+```
+
+Without `libcluster`:
+
+```elixir
+  ...
+
+    children = [
+      {
+        Mnesiac.Supervisor,
+        [
+          [:"test01@127.0.0.1", :"test02@127.0.0.1"],
+          [name: MyApp.MnesiacSupervisor]
+        ]
+      },
+      ..other children..
+    ]
+
+  ...
+```
+
 ## Usage
 
 ### Table creation
