@@ -3,7 +3,7 @@ defmodule MnesiacTest do
   use ExUnit.Case
   doctest Mnesiac
 
-  test "greets the world" do
-    assert Mnesiac.hello() == :world
+  test "sample test" do
+    assert :ok
   end
 end

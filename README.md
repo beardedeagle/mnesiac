@@ -125,6 +125,6 @@ If you are not using `libcluster` or similar clustering library then:
 
 ## Notice
 
-This library was built standing on the shoulders of giants. A big thanks goes out to Mustafa Turan. The original library this was forked from can be found here: https://github.com/mustafaturan/mnesiam.
+This library was built standing on the shoulders of giants. A big thanks goes out to Mustafa Turan. The original library this was forked from can be found here: <https://github.com/mustafaturan/mnesiam>.
 
 Enjoy!

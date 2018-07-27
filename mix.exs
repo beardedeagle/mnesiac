@@ -57,6 +57,7 @@ defmodule Mnesiac.MixProject do
       {:credo, "~> 0.9", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.19", only: [:dev], runtime: false},
+      {:ex_unit_clustered_case, github: "bitwalker/ex_unit_clustered_case"},
       {:excoveralls, "~> 0.9", only: [:dev, :test], runtime: false}
     ]
   end
