@@ -2,9 +2,7 @@ defmodule Mnesiac do
   @moduledoc """
   Mnesiac Manager
   """
-  import Mnesiac.Logger
-
-  alias Mnesiac.Store
+  alias Mnesiac.{Logger, Store}
 
   @doc """
   Start Mnesia with/without a cluster
@@ -50,7 +48,7 @@ defmodule Mnesiac do
       :ok
     else
       {:error, reason} ->
-        debug(reason)
+        Logger.debug(reason)
         {:error, reason}
     end
   end
@@ -130,7 +128,7 @@ defmodule Mnesiac do
         :ok
 
       {:error, reason} ->
-        debug(reason)
+        Logger.debug(reason)
         {:error, reason}
     end
   end
