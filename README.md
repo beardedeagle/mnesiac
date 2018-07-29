@@ -22,7 +22,7 @@ Edit your app's config.exs to add the list of mnesia stores:
 config :mnesiac,
   stores: [Mnesiac.ExampleStore, ...],
   schema_type: :disc_copies, # defaults to :ram_copies
-  table_load_timeout: 600_000 # milliseconds
+  table_load_timeout: 600_000 # milliseconds, default is 600_000
 ```
 
 And then add `mnesiac` to your supervision tree:
@@ -38,7 +38,7 @@ With `libcluster`:
     children = [
       {Cluster.Supervisor, [topology, [name: MyApp.ClusterSupervisor]]},
       {Mnesiac.Supervisor, [hosts, [name: MyApp.MnesiacSupervisor]]},
-      ..other children..
+      ...
     ]
 
   ...
@@ -57,7 +57,7 @@ Without `libcluster`:
           [name: MyApp.MnesiacSupervisor]
         ]
       },
-      ..other children..
+      ...
     ]
 
   ...
