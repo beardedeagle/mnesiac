@@ -1,5 +1,7 @@
 defmodule Mnesiac.MixProject do
   @moduledoc false
+  require Logger
+
   use Mix.Project
 
   def project do
@@ -36,6 +38,7 @@ defmodule Mnesiac.MixProject do
       ],
       aliases: [
         check: ["format", "compile --force", "credo --strict --all"],
+        "purge.db": &purge_db/1,
         test: "coveralls.html --trace --slowest 10"
       ],
       deps: deps()
@@ -60,5 +63,13 @@ defmodule Mnesiac.MixProject do
       {:ex_unit_clustered_case, github: "bitwalker/ex_unit_clustered_case"},
       {:excoveralls, "~> 0.9", only: [:dev, :test], runtime: false}
     ]
+  end
+
+  defp purge_db(_) do
+    if Mix.env() in [:dev, :test] do
+      Mix.shell().cmd("rm -rf ./priv/data/*.* ./priv/test*")
+    else
+      Logger.log(:info, "purge.db can only be used in dev and test.")
+    end
   end
 end
