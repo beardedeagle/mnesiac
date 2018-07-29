@@ -82,7 +82,8 @@ defmodule Mnesiac do
       {:ok, []} ->
         {:error, {:failed_to_connect_node, cluster_node}}
 
-      {:error, reason} -> {:error, reason}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -135,7 +136,8 @@ defmodule Mnesiac do
       true ->
         :ok
 
-      {:error, reason} -> {:error, reason}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
