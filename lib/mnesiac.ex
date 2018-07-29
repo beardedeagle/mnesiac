@@ -2,7 +2,8 @@ defmodule Mnesiac do
   @moduledoc """
   Mnesiac Manager
   """
-  alias Mnesiac.{Logger, Store}
+  require Logger
+  alias Mnesiac.Store
 
   @doc """
   Start Mnesia with/without a cluster
@@ -48,7 +49,7 @@ defmodule Mnesiac do
       :ok
     else
       {:error, reason} ->
-        Logger.debug(reason)
+        Logger.debug(fn -> "#{reason}" end)
         {:error, reason}
     end
   end
@@ -72,9 +73,15 @@ defmodule Mnesiac do
   """
   def connect(cluster_node) do
     case :mnesia.change_config(:extra_db_nodes, [cluster_node]) do
-      {:ok, [_head | _tail]} -> :ok
-      {:ok, []} -> {:error, {:failed_to_connect_node, cluster_node}}
-      {:error, reason} -> {:error, reason}
+      {:ok, [_head | _tail]} ->
+        :ok
+
+      {:ok, []} ->
+        {:error, {:failed_to_connect_node, cluster_node}}
+
+      {:error, reason} ->
+        Logger.debug(fn -> "#{reason}" end)
+        {:error, reason}
     end
   end
 
@@ -104,7 +111,9 @@ defmodule Mnesiac do
          :ok <- wait_for(:start) do
       :ok
     else
-      {:error, reason} -> {:error, reason}
+      {:error, reason} ->
+        Logger.debug(fn -> "#{reason}" end)
+        {:error, reason}
     end
   end
 
@@ -113,7 +122,9 @@ defmodule Mnesiac do
          :ok <- wait_for(:stop) do
       :ok
     else
-      {:error, reason} -> {:error, reason}
+      {:error, reason} ->
+        Logger.debug(fn -> "#{reason}" end)
+        {:error, reason}
     end
   end
 
@@ -128,7 +139,7 @@ defmodule Mnesiac do
         :ok
 
       {:error, reason} ->
-        Logger.debug(reason)
+        Logger.debug(fn -> "#{reason}" end)
         {:error, reason}
     end
   end
