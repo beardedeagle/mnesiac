@@ -15,8 +15,11 @@ defmodule Mnesiac do
       end)
 
     case nodes do
-      [head | _tail] -> join_cluster(head)
-      [] -> start()
+      [head | _tail] ->
+        join_cluster(head)
+
+      [] ->
+        start()
     end
   end
 
@@ -133,11 +136,8 @@ defmodule Mnesiac do
          :ok <- File.mkdir(mnesia_dir) do
       :ok
     else
-      true ->
-        :ok
-
-      {:error, reason} ->
-        {:error, reason}
+      true -> :ok
+      {:error, reason} -> {:error, reason}
     end
   end
 
