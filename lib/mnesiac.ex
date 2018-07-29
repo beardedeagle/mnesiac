@@ -15,7 +15,7 @@ defmodule Mnesiac do
       end)
 
     case nodes do
-      [h | _t] -> join_cluster(h)
+      [head | _tail] -> join_cluster(head)
       [] -> start()
     end
   end
@@ -25,13 +25,15 @@ defmodule Mnesiac do
   """
   def start do
     with :ok <- ensure_dir_exists(),
-         :ok <- start_server(),
+         :ok <- ensure_started(),
          :ok <- Store.copy_schema(Node.self()),
          :ok <- Store.init_tables(),
          :ok <- Store.ensure_tables_loaded() do
       :ok
     else
-      {:error, error} -> {:error, error}
+      {:error, reason} ->
+        Logger.debug(fn -> "[mnesiac:#{Node.self()}] #{reason}" end)
+        {:error, reason}
     end
   end
 
@@ -39,7 +41,8 @@ defmodule Mnesiac do
   Join to a Mnesia cluster
   """
   def join_cluster(cluster_node) do
-    with :ok <- ensure_stopped(),
+    with :ok <- ensure_dir_exists(),
+         :ok <- ensure_stopped(),
          :ok <- Store.delete_schema(),
          :ok <- ensure_started(),
          :ok <- connect(cluster_node),
@@ -49,7 +52,7 @@ defmodule Mnesiac do
       :ok
     else
       {:error, reason} ->
-        Logger.debug(fn -> "#{reason}" end)
+        Logger.debug(fn -> "[mnesiac:#{Node.self()}] #{reason}" end)
         {:error, reason}
     end
   end
@@ -79,9 +82,7 @@ defmodule Mnesiac do
       {:ok, []} ->
         {:error, {:failed_to_connect_node, cluster_node}}
 
-      {:error, reason} ->
-        Logger.debug(fn -> "#{reason}" end)
-        {:error, reason}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -111,9 +112,7 @@ defmodule Mnesiac do
          :ok <- wait_for(:start) do
       :ok
     else
-      {:error, reason} ->
-        Logger.debug(fn -> "#{reason}" end)
-        {:error, reason}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -122,9 +121,7 @@ defmodule Mnesiac do
          :ok <- wait_for(:stop) do
       :ok
     else
-      {:error, reason} ->
-        Logger.debug(fn -> "#{reason}" end)
-        {:error, reason}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -138,9 +135,7 @@ defmodule Mnesiac do
       true ->
         :ok
 
-      {:error, reason} ->
-        Logger.debug(fn -> "#{reason}" end)
-        {:error, reason}
+      {:error, reason} -> {:error, reason}
     end
   end
 

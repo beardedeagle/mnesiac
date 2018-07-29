@@ -9,7 +9,7 @@ defmodule Mnesiac.Store do
   def init_tables do
     case :mnesia.system_info(:extra_db_nodes) do
       [] -> create_tables()
-      [_ | _] -> copy_tables()
+      [_head | _tail] -> copy_tables()
     end
   end
 
