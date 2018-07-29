@@ -74,9 +74,9 @@ defmodule Mnesiac do
   """
   def connect(cluster_node) do
     case :mnesia.change_config(:extra_db_nodes, [cluster_node]) do
-      {:ok, [_cluster_node]} -> :ok
+      {:ok, [_head | _tail]} -> :ok
       {:ok, []} -> {:error, {:failed_to_connect_node, cluster_node}}
-      reason -> {:error, reason}
+      {:error, reason} -> {:error, reason}
     end
   end
 
