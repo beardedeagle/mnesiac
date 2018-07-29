@@ -16,5 +16,5 @@ defmodule Mnesiac.Logger do
   def warn(msg), do: log(:warn, msg)
   def error(msg), do: log(:error, msg)
 
-  defp log(level, msg), do: Logger.log(level, "[mnesiac:#{Node.self()}] #{msg}")
+  defp log(level, msg), do: Logger.bare_log(level, "[mnesiac:#{Node.self()}] #{msg}")
 end

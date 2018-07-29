@@ -69,7 +69,7 @@ defmodule Mnesiac.MixProject do
     if Mix.env() in [:dev, :test] do
       Mix.shell().cmd("rm -rf ./priv/data/*.* ./priv/test*")
     else
-      Logger.log(:info, "purge.db can only be used in dev and test.")
+      Logger.bare_log(:info, "purge.db can only be used in dev and test.")
     end
   end
 end
