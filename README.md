@@ -1,4 +1,5 @@
 # Mnesiac
+[![Build Status](https://travis-ci.org/beardedeagle/mnesiac.svg?branch=master)](https://travis-ci.org/beardedeagle/mnesiac)
 
 mnesia autoclustering made easy!
 
