@@ -19,11 +19,11 @@ defmodule MnesiacTest do
   end
 
   test "cluster status" do
-    assert Mnesiac.cluster_status == [{:running_nodes, [Node.self()]}]
+    assert Mnesiac.cluster_status() == [{:running_nodes, [Node.self()]}]
   end
 
   test "running nodes" do
-    assert Mnesiac.running_nodes == [Node.self()]
+    assert Mnesiac.running_nodes() == [Node.self()]
   end
 
   test "node in cluster" do
