@@ -11,7 +11,9 @@ script:
   - "MIX_ENV=test mix deps.compile --force"
   - "MIX_ENV=test mix compile --force --warnings-as-errors"
   - "MIX_ENV=test mix format --check-formatted --dry-run"
-  - "MIX_ENV=test mix coveralls.travis"
+  - "MIX_ENV=test mix coveralls.json"
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 notifications:
   recipients:
     - randy@heroictek.com
