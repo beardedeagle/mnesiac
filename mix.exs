@@ -40,8 +40,7 @@ defmodule Mnesiac.MixProject do
       ],
       aliases: [
         check: ["format", "compile --force", "credo --strict --all"],
-        "purge.db": &purge_db/1,
-        test: "coveralls.html --trace --slowest 10"
+        "purge.db": &purge_db/1
       ],
       deps: deps()
     ]
