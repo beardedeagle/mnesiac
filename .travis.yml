@@ -8,7 +8,7 @@ otp_release:
   - 21.0.4
 script:
   - "mix format --check-formatted --dry-run"
-  - "MIX_ENV=test mix do deps.get, test"
+  - "MIX_ENV=test mix do deps.get, compile, coveralls.travis"
 notifications:
   recipients:
     - randy@heroictek.com

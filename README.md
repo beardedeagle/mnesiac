@@ -1,5 +1,6 @@
 # Mnesiac
-[![Hex pm](http://img.shields.io/hexpm/v/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac)[![Build Status](https://travis-ci.org/beardedeagle/mnesiac.svg?branch=master)](https://travis-ci.org/beardedeagle/mnesiac)
+
+[![Build Status](https://travis-ci.org/beardedeagle/mnesiac.svg?branch=master)](https://travis-ci.org/beardedeagle/mnesiac) [![Coverage Status](https://coveralls.io/repos/github/beardedeagle/mnesiac/badge.svg?branch=master)](https://coveralls.io/github/beardedeagle/mnesiac?branch=master) [![Hex pm](http://img.shields.io/hexpm/v/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac) 
 
 mnesia autoclustering made easy!
 
