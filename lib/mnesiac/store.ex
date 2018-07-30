@@ -1,14 +1,18 @@
-defmodule Store do
+defmodule Mnesiac.Store do
   @moduledoc """
   Mnesia Store Manager
   """
+
   @doc """
   Init tables
   """
   def init_tables do
     case :mnesia.system_info(:extra_db_nodes) do
-      [] -> create_tables()
-      [_ | _] -> copy_tables()
+      [] ->
+        create_tables()
+
+      [_head | _tail] ->
+        copy_tables()
     end
   end
 
@@ -19,9 +23,14 @@ defmodule Store do
     tables = :mnesia.system_info(:local_tables)
 
     case :mnesia.wait_for_tables(tables, table_load_timeout()) do
-      :ok -> :ok
-      {:error, reason} -> {:error, reason}
-      {:timeout, bad_tables} -> {:error, {:timeout, bad_tables}}
+      :ok ->
+        :ok
+
+      {:error, reason} ->
+        {:error, reason}
+
+      {:timeout, bad_tables} ->
+        {:error, {:timeout, bad_tables}}
     end
   end
 
@@ -51,12 +60,17 @@ defmodule Store do
   Copy schema
   """
   def copy_schema(cluster_node) do
-    copy_type = Application.get_env(:mnesiam, :schema_type, :ram_copies)
+    copy_type = Application.get_env(:mnesiac, :schema_type, :ram_copies)
 
     case :mnesia.change_table_copy_type(:schema, cluster_node, copy_type) do
-      {:atomic, :ok} -> :ok
-      {:aborted, {:already_exists, :schema, _, _}} -> :ok
-      {:aborted, reason} -> {:error, reason}
+      {:atomic, :ok} ->
+        :ok
+
+      {:aborted, {:already_exists, :schema, _, _}} ->
+        :ok
+
+      {:aborted, reason} ->
+        {:error, reason}
     end
   end
 
@@ -72,16 +86,19 @@ defmodule Store do
   """
   def del_schema_copy(cluster_node) do
     case :mnesia.del_table_copy(:schema, cluster_node) do
-      {:atomic, :ok} -> :ok
-      {:aborted, reason} -> {:error, reason}
+      {:atomic, :ok} ->
+        :ok
+
+      {:aborted, reason} ->
+        {:error, reason}
     end
   end
 
   defp stores do
-    Application.get_env(:mnesiam, :stores)
+    Application.get_env(:mnesiac, :stores)
   end
 
   defp table_load_timeout do
-    Application.get_env(:mnesiam, :table_load_timeout, 600_000)
+    Application.get_env(:mnesiac, :table_load_timeout, 600_000)
   end
 end

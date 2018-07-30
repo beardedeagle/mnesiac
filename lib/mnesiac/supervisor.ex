@@ -1,5 +1,6 @@
 defmodule Mnesiac.Supervisor do
   @moduledoc false
+  require Logger
   use Supervisor
 
   def start_link([_config, opts] = args) do
@@ -12,8 +13,10 @@ defmodule Mnesiac.Supervisor do
 
   @impl true
   def init([config, opts]) do
+    Logger.info(fn -> "[mnesiac:#{Node.self()}] mnesiac starting..." end)
+    Mnesiac.init_mnesia(config)
+    Logger.info(fn -> "[mnesiac:#{Node.self()}] mnesiac started" end)
     opts = Keyword.put(opts, :strategy, :one_for_one)
-    children = [{Mnesiam, [config]}]
-    Supervisor.init(children, opts)
+    Supervisor.init([], opts)
   end
 end

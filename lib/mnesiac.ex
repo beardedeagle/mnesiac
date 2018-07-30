@@ -3,26 +3,7 @@ defmodule Mnesiac do
   Mnesiac Manager
   """
   require Logger
-
-  use GenServer
-
-  def start_link(args) do
-    GenServer.start_link(__MODULE__, args, name: __MODULE__)
-  end
-
-  @impl true
-  def init(args) do
-    GenServer.cast(__MODULE__, {:init, args})
-
-    {:ok, []}
-  end
-
-  @impl true
-  def handle_cast({:init, nodes}, _state) do
-    init_mnesia(nodes)
-
-    {:noreply, []}
-  end
+  alias Mnesiac.Store
 
   @doc """
   Start Mnesia with/without a cluster
@@ -34,18 +15,11 @@ defmodule Mnesiac do
       end)
 
     case nodes do
-      [h | _t] -> join_cluster(h)
-      [] -> start()
-    end
-  end
+      [head | _tail] ->
+        join_cluster(head)
 
-  @doc """
-  Start Mnesia with/without a cluster. Test helper.
-  """
-  def init_mnesia(nodes, :test) do
-    case List.delete(List.flatten(nodes), Node.self()) do
-      [h | _t] -> join_cluster(h)
-      [] -> start()
+      [] ->
+        start()
     end
   end
 
@@ -54,13 +28,15 @@ defmodule Mnesiac do
   """
   def start do
     with :ok <- ensure_dir_exists(),
-         :ok <- start_server(),
+         :ok <- ensure_started(),
          :ok <- Store.copy_schema(Node.self()),
          :ok <- Store.init_tables(),
          :ok <- Store.ensure_tables_loaded() do
       :ok
     else
-      {:error, error} -> {:error, error}
+      {:error, reason} ->
+        Logger.debug(fn -> "[mnesiac:#{Node.self()}] #{reason}" end)
+        {:error, reason}
     end
   end
 
@@ -68,7 +44,8 @@ defmodule Mnesiac do
   Join to a Mnesia cluster
   """
   def join_cluster(cluster_node) do
-    with :ok <- ensure_stopped(),
+    with :ok <- ensure_dir_exists(),
+         :ok <- ensure_stopped(),
          :ok <- Store.delete_schema(),
          :ok <- ensure_started(),
          :ok <- connect(cluster_node),
@@ -78,7 +55,7 @@ defmodule Mnesiac do
       :ok
     else
       {:error, reason} ->
-        Logger.log(:debug, fn -> inspect(reason) end)
+        Logger.debug(fn -> "[mnesiac:#{Node.self()}] #{reason}" end)
         {:error, reason}
     end
   end
@@ -102,9 +79,14 @@ defmodule Mnesiac do
   """
   def connect(cluster_node) do
     case :mnesia.change_config(:extra_db_nodes, [cluster_node]) do
-      {:ok, [_cluster_node]} -> :ok
-      {:ok, []} -> {:error, {:failed_to_connect_node, cluster_node}}
-      reason -> {:error, reason}
+      {:ok, [_head | _tail]} ->
+        :ok
+
+      {:ok, []} ->
+        {:error, {:failed_to_connect_node, cluster_node}}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -154,12 +136,8 @@ defmodule Mnesiac do
          :ok <- File.mkdir(mnesia_dir) do
       :ok
     else
-      true ->
-        :ok
-
-      {:error, reason} ->
-        Logger.log(:debug, fn -> inspect(reason) end)
-        {:error, reason}
+      true -> :ok
+      {:error, reason} -> {:error, reason}
     end
   end
 
