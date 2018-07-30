@@ -1,0 +1,14 @@
+sudo: false
+language: elixir
+elixir:
+  - 1.7
+  - 1.7.1
+otp_release:
+  - 21.0
+  - 21.0.4
+script:
+  - "mix format --check-formatted --dry-run"
+  - "MIX_ENV=test mix do deps.get, test"
+notifications:
+  recipients:
+    - randy@heroictek.com
