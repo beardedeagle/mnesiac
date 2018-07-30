@@ -12,7 +12,7 @@ script:
   - "MIX_ENV=test mix compile --force --warnings-as-errors"
   - "MIX_ENV=test mix format --check-formatted --dry-run"
   - "MIX_ENV=test mix coveralls.json"
-after_script:
+after_success:
   - bash <(curl -s https://codecov.io/bash)
 notifications:
   recipients:
