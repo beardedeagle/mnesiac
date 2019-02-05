@@ -13,7 +13,7 @@ defmodule Mnesiac.Store do
 
   @callback init_store() :: term
 
-  @callback resolve_conflict(cluster_node) :: term
+  @callback resolve_conflict(node()) :: term
 
   @optional_callbacks copy_store: 0, init_store: 0
 
