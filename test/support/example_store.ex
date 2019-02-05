@@ -21,11 +21,12 @@ defmodule Mnesiac.ExampleStore do
           )
 
   @impl true
-  def store_options, do: [
-    attributes: example() |> example() |> Keyword.keys(),
-    index: [:topic_id],
-    ram_copies: [Node.self()]
-  ]
+  def store_options,
+    do: [
+      attributes: example() |> example() |> Keyword.keys(),
+      index: [:topic_id],
+      ram_copies: [Node.self()]
+    ]
 
   @impl true
   def copy_store do

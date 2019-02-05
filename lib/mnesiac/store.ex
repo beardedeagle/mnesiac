@@ -13,6 +13,8 @@ defmodule Mnesiac.Store do
 
   @callback init_store() :: term
 
+  @callback resolve_conflict(cluster_node) :: term
+
   @optional_callbacks copy_store: 0, init_store: 0
 
   defmacro __using__(_) do
@@ -31,10 +33,15 @@ defmodule Mnesiac.Store do
       def copy_store do
         for type <- [:ram_copies, :disc_copies, :disc_only_copies] do
           value = Keyword.get(store_options(), type, [])
+
           if Enum.member?(value, Node.self()) do
             :mnesia.add_table_copy(__MODULE__, Node.self(), type)
           end
         end
+      end
+
+      def resolve_conflict(cluster_node) do
+        :ok
       end
 
       defoverridable Mnesiac.Store

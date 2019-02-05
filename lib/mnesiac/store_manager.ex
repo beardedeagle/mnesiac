@@ -58,14 +58,19 @@ defmodule Mnesiac.StoreManager do
       case {local_cookies[data_mapper], remote_cookies[data_mapper]} do
         {nil, nil} ->
           apply(data_mapper, :init_store, [])
+
         {nil, _} ->
           apply(data_mapper, :copy_store, [])
+
         {_, nil} ->
           Logger.info(fn -> "[mnesiac:#{Node.self()}] #{inspect(data_mapper)}: no remote data to copy found." end)
           {:error, :no_remote_data_to_copy}
+
         {_local, _remote} ->
-          Logger.info(fn -> "[mnesiac:#{Node.self()}] #{inspect(data_mapper)}: data found on both sides, copy aborted." end)
-          {:error, :data_conflict}
+          Logger.info(fn ->
+            "[mnesiac:#{Node.self()}] #{inspect(data_mapper)}: data found on both sides, copy aborted."
+          end)
+          apply(data_mapper, :resolve_conflict, [cluster_node])
       end
     end)
 
@@ -118,6 +123,9 @@ defmodule Mnesiac.StoreManager do
     Application.get_env(:mnesiac, :table_load_timeout, 600_000)
   end
 
+  @doc """
+  This function returns a map of tables and their cookies.
+  """
   def get_table_cookies(node \\ Node.self()) do
     tables = :rpc.call(node, :mnesia, :system_info, [:tables])
 
