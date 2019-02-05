@@ -41,6 +41,9 @@ defmodule Mnesiac.Store do
       end
 
       def resolve_conflict(cluster_node) do
+        Logger.info(fn ->
+          "[mnesiac:#{Node.self()}] #{inspect(data_mapper)}: data found on both sides, copy aborted."
+        end)
         :ok
       end
 

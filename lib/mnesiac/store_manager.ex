@@ -67,10 +67,6 @@ defmodule Mnesiac.StoreManager do
           {:error, :no_remote_data_to_copy}
 
         {_local, _remote} ->
-          Logger.info(fn ->
-            "[mnesiac:#{Node.self()}] #{inspect(data_mapper)}: data found on both sides, copy aborted."
-          end)
-
           apply(data_mapper, :resolve_conflict, [cluster_node])
       end
     end)
