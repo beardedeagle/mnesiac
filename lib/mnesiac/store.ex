@@ -15,7 +15,7 @@ defmodule Mnesiac.Store do
 
   @callback resolve_conflict(node()) :: term
 
-  @optional_callbacks copy_store: 0, init_store: 0, resolve_confict: 1
+  @optional_callbacks copy_store: 0, init_store: 0, resolve_conflict: 1
 
   defmacro __using__(_) do
     quote do
