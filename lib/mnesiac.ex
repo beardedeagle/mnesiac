@@ -3,7 +3,7 @@ defmodule Mnesiac do
   Mnesiac Manager
   """
   require Logger
-  alias Mnesiac.Store
+  alias Mnesiac.StoreManager
 
   @doc """
   Start Mnesia with/without a cluster
@@ -29,9 +29,9 @@ defmodule Mnesiac do
   def start do
     with :ok <- ensure_dir_exists(),
          :ok <- ensure_started(),
-         :ok <- Store.copy_schema(Node.self()),
-         :ok <- Store.init_tables(),
-         :ok <- Store.ensure_tables_loaded() do
+         :ok <- StoreManager.copy_schema(Node.self()),
+         :ok <- StoreManager.init_tables(),
+         :ok <- StoreManager.ensure_tables_loaded() do
       :ok
     else
       {:error, reason} ->
@@ -46,12 +46,12 @@ defmodule Mnesiac do
   def join_cluster(cluster_node) do
     with :ok <- ensure_dir_exists(),
          :ok <- ensure_stopped(),
-         :ok <- Store.delete_schema(),
+         :ok <- StoreManager.delete_schema(),
          :ok <- ensure_started(),
          :ok <- connect(cluster_node),
-         :ok <- Store.copy_schema(Node.self()),
-         :ok <- Store.copy_tables(),
-         :ok <- Store.ensure_tables_loaded() do
+         :ok <- StoreManager.copy_schema(Node.self()),
+         :ok <- StoreManager.copy_tables(cluster_node),
+         :ok <- StoreManager.ensure_tables_loaded() do
       :ok
     else
       {:error, reason} ->

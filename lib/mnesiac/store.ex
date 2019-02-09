@@ -1,104 +1,53 @@
 defmodule Mnesiac.Store do
-  @moduledoc """
-  Mnesia Store Manager
-  """
-
   @doc """
-  Init tables
+  This function returns ths store's configuration as a keyword list.
+  For more information on the options supported here, see mnesia's documenatation.
+
+  ## Examples
+  iex> store_options()
+  [attributes: [...], index: [:topic_id], disc_copies: [Node.self()]]
   """
-  def init_tables do
-    case :mnesia.system_info(:extra_db_nodes) do
-      [] ->
-        create_tables()
+  @callback store_options() :: term
 
-      [_head | _tail] ->
-        copy_tables()
-    end
-  end
+  @callback copy_store() :: atom
 
-  @doc """
-  Ensure tables loaded
-  """
-  def ensure_tables_loaded do
-    tables = :mnesia.system_info(:local_tables)
+  @callback init_store() :: term
 
-    case :mnesia.wait_for_tables(tables, table_load_timeout()) do
-      :ok ->
+  @callback resolve_conflict(node()) :: term
+
+  @optional_callbacks copy_store: 0, init_store: 0, resolve_conflict: 1
+
+  defmacro __using__(_) do
+    quote do
+      @behaviour Mnesiac.Store
+      @doc """
+      Mnesiac will call this method to initialize the table
+      """
+      def init_store do
+        :mnesia.create_table(__MODULE__, store_options())
+      end
+
+      @doc """
+      Mnesiac will call this method to copy the table
+      """
+      def copy_store do
+        for type <- [:ram_copies, :disc_copies, :disc_only_copies] do
+          value = Keyword.get(store_options(), type, [])
+
+          if Enum.member?(value, Node.self()) do
+            :mnesia.add_table_copy(__MODULE__, Node.self(), type)
+          end
+        end
+      end
+
+      def resolve_conflict(cluster_node) do
+        Logger.info(fn ->
+          "[mnesiac:#{Node.self()}] #{inspect(data_mapper)}: data found on both sides, copy aborted."
+        end)
         :ok
+      end
 
-      {:error, reason} ->
-        {:error, reason}
-
-      {:timeout, bad_tables} ->
-        {:error, {:timeout, bad_tables}}
+      defoverridable Mnesiac.Store
     end
-  end
-
-  @doc """
-  Create tables
-  """
-  def create_tables do
-    Enum.each(stores(), fn data_mapper ->
-      apply(data_mapper, :init_store, [])
-    end)
-
-    :ok
-  end
-
-  @doc """
-  Copy tables
-  """
-  def copy_tables do
-    Enum.each(stores(), fn data_mapper ->
-      apply(data_mapper, :copy_store, [])
-    end)
-
-    :ok
-  end
-
-  @doc """
-  Copy schema
-  """
-  def copy_schema(cluster_node) do
-    copy_type = Application.get_env(:mnesiac, :schema_type, :ram_copies)
-
-    case :mnesia.change_table_copy_type(:schema, cluster_node, copy_type) do
-      {:atomic, :ok} ->
-        :ok
-
-      {:aborted, {:already_exists, :schema, _, _}} ->
-        :ok
-
-      {:aborted, reason} ->
-        {:error, reason}
-    end
-  end
-
-  @doc """
-  Delete schema
-  """
-  def delete_schema do
-    :mnesia.delete_schema([Node.self()])
-  end
-
-  @doc """
-  Delete schema copy
-  """
-  def del_schema_copy(cluster_node) do
-    case :mnesia.del_table_copy(:schema, cluster_node) do
-      {:atomic, :ok} ->
-        :ok
-
-      {:aborted, reason} ->
-        {:error, reason}
-    end
-  end
-
-  defp stores do
-    Application.get_env(:mnesiac, :stores)
-  end
-
-  defp table_load_timeout do
-    Application.get_env(:mnesiac, :table_load_timeout, 600_000)
   end
 end

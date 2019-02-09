@@ -2,9 +2,11 @@ defmodule Mnesiac.ExampleStore do
   @moduledoc false
   require Record
 
+  use Mnesiac.Store
+
   Record.defrecord(
     :example,
-    ExampleStore,
+    __MODULE__,
     id: nil,
     topic_id: nil,
     event: nil
@@ -18,16 +20,16 @@ defmodule Mnesiac.ExampleStore do
             event: String.t()
           )
 
-  def init_store do
-    :mnesia.create_table(
-      ExampleStore,
+  @impl true
+  def store_options,
+    do: [
       attributes: example() |> example() |> Keyword.keys(),
       index: [:topic_id],
-      disc_copies: [Node.self()]
-    )
-  end
+      ram_copies: [Node.self()]
+    ]
 
+  @impl true
   def copy_store do
-    :mnesia.add_table_copy(ExampleStore, Node.self(), :disc_copies)
+    :mnesia.add_table_copy(__MODULE__, Node.self(), :disc_copies)
   end
 end
