@@ -27,6 +27,7 @@ script:
   - 'mix credo --strict --all'
   - 'MIX_ENV=test mix compile --force --warnings-as-errors'
   - 'MIX_ENV=test mix format --check-formatted --dry-run'
+  - 'mix purge.db'
   - 'MIX_ENV=test mix coveralls.json --no-start'
 after_success:
   - 'bash <(curl -s https://codecov.io/bash)'

@@ -71,6 +71,7 @@ defmodule MnesiacTest do
   scenario "single node test with mnesiac supervisor/1", @single_unnamed_opts do
     node_setup do
       {:ok, _pid} = Mnesiac.Supervisor.start_link([[node()]])
+      :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 5000)
     end
 
     test "tables exist", %{cluster: cluster} do
@@ -111,6 +112,7 @@ defmodule MnesiacTest do
   scenario "single node test with mnesiac supervisor/2", @single_named_opts do
     node_setup do
       {:ok, _pid} = Mnesiac.Supervisor.start_link([[node()], [name: Mnesiac.SupervisorSingleTest]])
+      :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 5000)
     end
 
     test "tables exist", %{cluster: cluster} do
@@ -151,6 +153,12 @@ defmodule MnesiacTest do
   scenario "distributed test", @distributed_opts do
     node_setup do
       {:ok, _pid} = Mnesiac.Supervisor.start_link([[:"test03@127.0.0.1", :"test04@127.0.0.1"]])
+
+      if node() == :"test03@127.0.0.1" do
+        :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 5000)
+      else
+        :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 10_000)
+      end
     end
 
     test "tables exist", %{cluster: cluster} do
