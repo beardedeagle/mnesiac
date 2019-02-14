@@ -1,6 +1,6 @@
 defmodule Mnesiac.Store do
   @moduledoc """
-  Defines callback modules users can overwride
+  This module defines a mnesiac store and contains overridable callbacks.
   """
 
   @doc """
@@ -13,10 +13,45 @@ defmodule Mnesiac.Store do
   """
   @callback store_options() :: term
 
+  @doc """
+  This function is called by mnesiac when it joins a mnesia cluster and data for this store is found on the remote node in the cluster that is being connected to.
+  ## Default Implementation
+  ```elixir
+  def copy_store do
+    for type <- [:ram_copies, :disc_copies, :disc_only_copies] do
+      value = Keyword.get(store_options(), type, [])
+
+      if Enum.member?(value, node()) do
+        :mnesia.add_table_copy(__MODULE__, node(), type)
+      end
+    end
+  end
+  ```
+  """
   @callback copy_store() :: term
 
+  @doc """
+  This function is called by mnesiac either when it has no existing data to use or copy and will initialise a table
+  ## Default Implementation
+  ```elixir
+  def init_store do
+        :mnesia.create_table(__MODULE__, store_options())
+  end
+  ```
+  """
   @callback init_store() :: term
 
+  @doc """
+  This function is called by mnesiac when it has detected data for a table on both the local node and the remote node of the cluster it is connecting to.
+  ## Default Implementation
+  **Note**: The default implementation for this function is to do nothing.
+  ```elixir
+  def resolve_conflict(cluster_node) do
+    Logger.info("[mnesiac:#{node()}] #{inspect(__MODULE__)}: data found on both sides, copy aborted.")
+    :ok
+  end
+  ```
+  """
   @callback resolve_conflict(node()) :: term
 
   @optional_callbacks copy_store: 0, init_store: 0, resolve_conflict: 1
@@ -24,18 +59,12 @@ defmodule Mnesiac.Store do
   defmacro __using__(_) do
     quote do
       @behaviour Mnesiac.Store
-      @doc """
-      Mnesiac will call this method to initialize the table
-      """
       require Logger
 
       def init_store do
         :mnesia.create_table(__MODULE__, store_options())
       end
 
-      @doc """
-      Mnesiac will call this method to copy the table
-      """
       def copy_store do
         for type <- [:ram_copies, :disc_copies, :disc_only_copies] do
           value = Keyword.get(store_options(), type, [])
