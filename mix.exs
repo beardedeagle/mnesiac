@@ -1,13 +1,12 @@
 defmodule Mnesiac.MixProject do
   @moduledoc false
   require Logger
-
   use Mix.Project
 
   def project do
     [
       app: :mnesiac,
-      version: "0.2.0",
+      version: "0.3.0",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: [tool: ExCoveralls],
@@ -38,10 +37,17 @@ defmodule Mnesiac.MixProject do
         licenses: ["MIT"],
         links: %{GitHub: "https://github.com/beardedeagle/mnesiac"}
       ],
+      docs: [
+        main: "readme",
+        extras: ["README.md", "CHANGELOG.md"],
+        formatters: ["html", "epub"]
+      ],
       aliases: [
         check: ["format", "compile --force", "credo --strict --all"],
         "purge.db": &purge_db/1
       ],
+      name: "Mnesiac",
+      source_url: "https://github.com/beardedeagle/mnesiac",
       deps: deps()
     ]
   end
@@ -58,18 +64,19 @@ defmodule Mnesiac.MixProject do
   defp deps do
     [
       {:libcluster, "~> 3.0", optional: true},
-      {:credo, "~> 0.10", only: [:dev], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
+      {:credo, "~> 1.0", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.19", only: [:dev], runtime: false},
-      {:excoveralls, "~> 0.9", only: [:dev, :test], runtime: false}
+      {:ex_unit_clustered_case, "~> 0.3", only: [:dev, :test]},
+      {:excoveralls, "~> 0.10", only: [:dev, :test], runtime: false}
     ]
   end
 
   defp purge_db(_) do
     if Mix.env() in [:dev, :test] do
-      Mix.shell().cmd("rm -rf ./Mnesia.nonode@nohost ./priv/data/*.* ./priv/test*")
+      Mix.shell().cmd("rm -rf ./test0* ./Mnesia.nonode@nohost")
     else
-      Logger.info(fn -> "[mnesiac:#{Node.self()}] purge.db can only be used in dev and test env" end)
+      Logger.info("[mnesiac:#{node()}] purge.db can only be used in dev and test env")
     end
   end
 end

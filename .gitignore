@@ -3,10 +3,13 @@ _build
 .elixir_ls
 .fetch
 .idea
+.sobelow
 .sonarlint
 .vscode
 *.beam
 *.ez
+*.log
+*.swp
 cover
 deps
 doc
@@ -14,3 +17,5 @@ erl_crash.dump
 Mnesia.nonode@nohost
 mnesiac-*.tar
 mnesiac.iml
+MnesiaCore.*
+test0*

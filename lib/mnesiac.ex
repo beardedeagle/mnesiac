@@ -6,12 +6,12 @@ defmodule Mnesiac do
   alias Mnesiac.StoreManager
 
   @doc """
-  Start Mnesia with/without a cluster
+  Start Mnesia with strict host checking
   """
   def init_mnesia(nodes) do
     nodes =
-      Enum.filter(List.delete(Node.list(), Node.self()), fn node ->
-        node in List.delete(List.flatten(nodes), Node.self())
+      Enum.filter(Node.list(), fn node ->
+        node in List.flatten(nodes)
       end)
 
     case nodes do
@@ -29,13 +29,13 @@ defmodule Mnesiac do
   def start do
     with :ok <- ensure_dir_exists(),
          :ok <- ensure_started(),
-         :ok <- StoreManager.copy_schema(Node.self()),
+         :ok <- StoreManager.copy_schema(node()),
          :ok <- StoreManager.init_tables(),
          :ok <- StoreManager.ensure_tables_loaded() do
       :ok
     else
       {:error, reason} ->
-        Logger.debug(fn -> "[mnesiac:#{Node.self()}] #{reason}" end)
+        Logger.debug(fn -> "[mnesiac:#{node()}] #{reason}" end)
         {:error, reason}
     end
   end
@@ -49,13 +49,13 @@ defmodule Mnesiac do
          :ok <- StoreManager.delete_schema(),
          :ok <- ensure_started(),
          :ok <- connect(cluster_node),
-         :ok <- StoreManager.copy_schema(Node.self()),
+         :ok <- StoreManager.copy_schema(node()),
          :ok <- StoreManager.copy_tables(cluster_node),
          :ok <- StoreManager.ensure_tables_loaded() do
       :ok
     else
       {:error, reason} ->
-        Logger.debug(fn -> "[mnesiac:#{Node.self()}] #{reason}" end)
+        Logger.debug(fn -> "[mnesiac:#{node()}] #{reason}" end)
         {:error, reason}
     end
   end
@@ -79,7 +79,7 @@ defmodule Mnesiac do
   """
   def connect(cluster_node) do
     case :mnesia.change_config(:extra_db_nodes, [cluster_node]) do
-      {:ok, [_head | _tail]} ->
+      {:ok, [_cluster_node]} ->
         :ok
 
       {:ok, []} ->
@@ -116,7 +116,8 @@ defmodule Mnesiac do
          :ok <- wait_for(:start) do
       :ok
     else
-      {:error, reason} -> {:error, reason}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -125,7 +126,8 @@ defmodule Mnesiac do
          :ok <- wait_for(:stop) do
       :ok
     else
-      {:error, reason} -> {:error, reason}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -136,8 +138,11 @@ defmodule Mnesiac do
          :ok <- File.mkdir(mnesia_dir) do
       :ok
     else
-      true -> :ok
-      {:error, reason} -> {:error, reason}
+      true ->
+        :ok
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

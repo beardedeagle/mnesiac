@@ -2,7 +2,6 @@ defmodule Mnesiac.StoreManager do
   @moduledoc """
   Mnesia Store Manager
   """
-
   require Logger
 
   @doc """
@@ -10,11 +9,11 @@ defmodule Mnesiac.StoreManager do
   """
   def init_tables do
     case :mnesia.system_info(:extra_db_nodes) do
-      [] ->
-        create_tables()
-
       [head | _tail] ->
         copy_tables(head)
+
+      [] ->
+        create_tables()
     end
   end
 
@@ -63,7 +62,7 @@ defmodule Mnesiac.StoreManager do
           apply(data_mapper, :copy_store, [])
 
         {_, nil} ->
-          Logger.info(fn -> "[mnesiac:#{Node.self()}] #{inspect(data_mapper)}: no remote data to copy found." end)
+          Logger.info("[mnesiac:#{node()}] #{inspect(data_mapper)}: no remote data to copy found.")
           {:error, :no_remote_data_to_copy}
 
         {_local, _remote} ->
@@ -96,7 +95,7 @@ defmodule Mnesiac.StoreManager do
   Delete schema
   """
   def delete_schema do
-    :mnesia.delete_schema([Node.self()])
+    :mnesia.delete_schema([node()])
   end
 
   @doc """
@@ -123,7 +122,7 @@ defmodule Mnesiac.StoreManager do
   @doc """
   This function returns a map of tables and their cookies.
   """
-  def get_table_cookies(node \\ Node.self()) do
+  def get_table_cookies(node \\ node()) do
     tables = :rpc.call(node, :mnesia, :system_info, [:tables])
 
     Enum.reduce(tables, %{}, fn t, acc ->

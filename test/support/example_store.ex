@@ -1,4 +1,4 @@
-defmodule Mnesiac.ExampleStore do
+defmodule Mnesiac.Support.ExampleStore do
   @moduledoc false
   require Record
 
@@ -25,11 +25,11 @@ defmodule Mnesiac.ExampleStore do
     do: [
       attributes: example() |> example() |> Keyword.keys(),
       index: [:topic_id],
-      ram_copies: [Node.self()]
+      ram_copies: [node()]
     ]
 
   @impl true
   def copy_store do
-    :mnesia.add_table_copy(__MODULE__, Node.self(), :disc_copies)
+    :mnesia.add_table_copy(__MODULE__, node(), :disc_copies)
   end
 end
