@@ -79,7 +79,7 @@ defmodule MnesiacTest do
       tables = Cluster.call(node_a, :mnesia, :system_info, [:tables])
 
       assert true = Cluster.call(node_a, Enum, :member?, [tables, :schema])
-      assert true = Cluster.call(node_a, Enum, :member?, [tables, ExampleStore])
+      assert true = Cluster.call(node_a, Enum, :member?, [tables, Mnesiac.Support.ExampleStore])
       assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
     end
 
@@ -119,7 +119,7 @@ defmodule MnesiacTest do
       tables = Cluster.call(node_a, :mnesia, :system_info, [:tables])
 
       assert true = Cluster.call(node_a, Enum, :member?, [tables, :schema])
-      assert true = Cluster.call(node_a, Enum, :member?, [tables, ExampleStore])
+      assert true = Cluster.call(node_a, Enum, :member?, [tables, Mnesiac.Support.ExampleStore])
       assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
     end
 
@@ -161,8 +161,8 @@ defmodule MnesiacTest do
 
       assert true = Cluster.call(node_a, Enum, :member?, [tables_a, :schema])
       assert true = Cluster.call(node_b, Enum, :member?, [tables_b, :schema])
-      assert true = Cluster.call(node_a, Enum, :member?, [tables_a, ExampleStore])
-      assert true = Cluster.call(node_b, Enum, :member?, [tables_b, ExampleStore])
+      assert true = Cluster.call(node_a, Enum, :member?, [tables_a, Mnesiac.Support.ExampleStore])
+      assert true = Cluster.call(node_b, Enum, :member?, [tables_b, Mnesiac.Support.ExampleStore])
       assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
       assert :opt_disc = Cluster.call(node_b, :mnesia, :system_info, [:schema_location])
     end
