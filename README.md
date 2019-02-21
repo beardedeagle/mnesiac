@@ -110,6 +110,7 @@ defmodule MyApp.ExampleStore do
       index: [:topic_id],
       ram_copies: [node()]
     ]
+end
 ```
 
 ### Clustering
