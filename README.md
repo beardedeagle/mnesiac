@@ -6,6 +6,8 @@ Mnesia autoclustering made easy!
 
 Docs can be found at [https://hexdocs.pm/mnesiac](https://hexdocs.pm/mnesiac).
 
+**_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the api can, and may, change at any time. Please ensure you review the docs and changelog prior to updating.
+
 ## Installation
 
 Simply add `mnesiac` to your list of dependencies in `mix.exs`:
@@ -83,7 +85,6 @@ There are three optional callbacks which can be implemented:
 defmodule MyApp.ExampleStore do
   @moduledoc false
   require Record
-
   use Mnesiac.Store
 
   Record.defrecord(
@@ -109,7 +110,6 @@ defmodule MyApp.ExampleStore do
       index: [:topic_id],
       ram_copies: [node()]
     ]
-end
 ```
 
 ### Clustering

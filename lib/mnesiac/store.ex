@@ -6,10 +6,11 @@ defmodule Mnesiac.Store do
   @doc """
   This function returns ths store's configuration as a keyword list.
   For more information on the options supported here, see mnesia's documenatation.
-
   ## Examples
+  ```elixir
   iex> store_options()
   [attributes: [...], index: [:topic_id], disc_copies: [node()]]
+  ```
   """
   @callback store_options() :: term
 
@@ -58,8 +59,8 @@ defmodule Mnesiac.Store do
 
   defmacro __using__(_) do
     quote do
-      @behaviour Mnesiac.Store
       require Logger
+      @behaviour Mnesiac.Store
 
       def init_store do
         :mnesia.create_table(__MODULE__, store_options())
