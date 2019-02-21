@@ -5,7 +5,7 @@ elixir:
   - '1.8.1'
 otp_release:
   - '20.3'
-  - '21.2.5'
+  - '21.2.6'
 git:
   quiet: true
 env:
@@ -31,6 +31,7 @@ script:
   - 'MIX_ENV=test mix coveralls.json --no-start'
 after_success:
   - 'bash <(curl -s https://codecov.io/bash)'
+  - 'mix inch.report'
 notifications:
   email:
     - 'randy@heroictek.com'

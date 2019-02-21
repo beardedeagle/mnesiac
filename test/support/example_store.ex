@@ -1,7 +1,6 @@
 defmodule Mnesiac.Support.ExampleStore do
   @moduledoc false
   require Record
-
   use Mnesiac.Store
 
   Record.defrecord(
@@ -25,7 +24,7 @@ defmodule Mnesiac.Support.ExampleStore do
     do: [
       attributes: example() |> example() |> Keyword.keys(),
       index: [:topic_id],
-      ram_copies: [node()]
+      disc_copies: [node()]
     ]
 
   @impl true

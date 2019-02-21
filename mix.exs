@@ -6,7 +6,7 @@ defmodule Mnesiac.MixProject do
   def project do
     [
       app: :mnesiac,
-      version: "0.3.0",
+      version: "0.3.1",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: [tool: ExCoveralls],
@@ -43,7 +43,7 @@ defmodule Mnesiac.MixProject do
         formatters: ["html", "epub"]
       ],
       aliases: [
-        check: ["format", "compile --force", "credo --strict --all"],
+        check: ["format", "compile --force", "credo --strict --all", "inch"],
         "purge.db": &purge_db/1
       ],
       name: "Mnesiac",
@@ -68,7 +68,8 @@ defmodule Mnesiac.MixProject do
       {:dialyxir, "~> 1.0.0-rc", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.19", only: [:dev], runtime: false},
       {:ex_unit_clustered_case, "~> 0.3", only: [:dev, :test]},
-      {:excoveralls, "~> 0.10", only: [:dev, :test], runtime: false}
+      {:excoveralls, "~> 0.10", only: [:dev, :test], runtime: false},
+      {:inch_ex, "~> 2.0", only: [:dev], runtime: false}
     ]
   end
 
