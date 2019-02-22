@@ -6,6 +6,7 @@ defmodule Mnesiac.Store do
   @doc """
   This function returns ths store's configuration as a keyword list.
   For more information on the options supported here, see mnesia's documenatation.
+  **Note**: Defining `record_name` in `store_options()` will set the mnesia table name to the same.
   ## Examples
   ```elixir
   iex> store_options()
@@ -63,7 +64,7 @@ defmodule Mnesiac.Store do
       @behaviour Mnesiac.Store
 
       def init_store do
-        :mnesia.create_table(__MODULE__, store_options())
+        :mnesia.create_table(Keyword.get(store_options(), :record_name) || __MODULE__, store_options())
       end
 
       def copy_store do
