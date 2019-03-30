@@ -20,7 +20,17 @@ def deps do
 end
 ```
 
-Edit your app's config.exs to add the list of mnesia stores:
+Edit your app's config.exs to add the list of mnesia stores by table type:
+
+- Supported table types:
+  - ram_copies
+  - disc_copies
+  - disc_only_copies
+
+- Supported replication factor types:
+  - **_N_** nodes
+  - **_N%_** nodes (represented as `.NN` floats)
+  - **_SPECIFIC_** nodes
 
 ```elixir
 config :mnesiac,
@@ -83,8 +93,8 @@ All stores *MUST* implement its own `store_options/0`, which returns a keyword l
 
 There are three optional callbacks which can be implemented:
 
-- `init_store/0`, which allows users to implement custom table initialisation logic.
-- `copy_store/0`, which allows users to implement a custom call to copy a store.
+- `init_store/1`, which allows users to implement custom table initialisation logic.
+- `copy_store/1`, which allows users to implement a custom call to copy a store.
 - `resolve_conflict/1`, which allows a user to implement logic when table data is found on both the remote node and local node when connecting to a cluster. This currently has no default implementation.
 
 ```elixir
@@ -125,7 +135,7 @@ If you are using `libcluster` or another clustering library just ensure that clu
 
 If you are not using `libcluster` or similar clustering library then:
 
-- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia()` function on the *new node*. This will initialize and copy table contents from the other online nodes.
+- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia/1` function on the *new node*. This will initialize and copy table contents from the other online nodes.
 
 ## Development
 
