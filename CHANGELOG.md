@@ -6,14 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [[0.4.0]] - 2019-03-30
 ### Added
-- Ability to specify how many copies of a table can exist, per table by type.
-- Ability to blacklist nodes, per table.
+- Ability to specify how many copies of schema can exist, by type.
+- Ability to specify how many copies of a store can exist, per store by type.
+- Ability to blacklist nodes, per store.
 - Structs for explicit config and store contracts.
 
 ### Fixed
 - More docs cleanup.
 
 ## Changed
+- Standardized terminology in library.
 - Bumped OTP version.
 - Updated dependencies.
 
@@ -24,7 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [[0.3.2]] - 2019-02-22
 ### Fixed
-- Regression that made defining a custom table name impossible.
+- Regression that made defining a custom store name impossible.
 
 ## [[0.3.1]] - 2019-02-21
 ### Added

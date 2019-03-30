@@ -20,14 +20,14 @@ def deps do
 end
 ```
 
-Edit your app's config.exs to add the list of mnesia stores by table type:
+Edit your app's config.exs to add the list of mnesia stores by type:
 
-- Supported table types:
+- Supported types:
   - ram_copies
   - disc_copies
   - disc_only_copies
 
-- Supported replication factor types:
+- Supported replication types:
   - **_N_** nodes (represented as positive integers)
   - **_N%_** nodes (represented as `.NN` floats)
   - **_SPECIFIC_** nodes (valid node names only)
@@ -42,7 +42,7 @@ config :mnesiac,
     [ref: Mnesiac.ExampleStore, disc_copies: [node3, node4, node6], ram_copies: [node10, node11], blacklist: [node1, node2]],
     ...
   ],
-  table_load_timeout: 600_000 # default is 600_000, milliseconds
+  store_load_timeout: 600_000 # default is 600_000, milliseconds
 ```
 
 Then add `mnesiac` to your supervision tree:
@@ -85,17 +85,19 @@ Then add `mnesiac` to your supervision tree:
 
 ## Usage
 
-### Table creation
+### Store creation
 
-Create a table store, `use Mnesiac.Store`, and add it to your app's config.exs. 
+To create a store, `use Mnesiac.Store`, and add it to your app's config.exs. 
 
-All stores *MUST* implement its own `store_options/0`, which returns a keyword list of table options.
+All stores *MUST* implement its own `store_options/0`, which returns a keyword list of store options.
 
 There are three optional callbacks which can be implemented:
 
-- `init_store/1`, which allows users to implement custom table initialization logic.
+- `init_schema/1`, which allows users to implement custom schema initialization logic.
+- `copy_schema/1`, which allows users to implement a custom call to copy schema.
+- `init_store/1`, which allows users to implement custom store initialization logic.
 - `copy_store/1`, which allows users to implement a custom call to copy a store.
-- `resolve_conflict/1`, which allows a user to implement logic when table data is found on both the remote node and local node when connecting to a cluster. This currently has no default implementation.
+- `resolve_conflict/1`, which allows a user to implement logic when it has detected records for a store on both the local and remote nodes it is connecting to. The default implementation is to do nothing.
 
 ```elixir
 defmodule MyApp.ExampleStore do
@@ -135,7 +137,7 @@ If you are using `libcluster` or another clustering library just ensure that clu
 
 If you are not using `libcluster` or similar clustering library then:
 
-- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia/1` function on the *new node*. This will initialize and copy table contents from the other online nodes.
+- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia/1` function on the *new node*. This will initialize and copy the store contents from the other online nodes.
 
 ## Development
 
