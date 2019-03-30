@@ -2,11 +2,11 @@
 
 [![Build Status](https://travis-ci.org/beardedeagle/mnesiac.svg?branch=master)](https://travis-ci.org/beardedeagle/mnesiac) [![codecov](https://codecov.io/gh/beardedeagle/mnesiac/branch/master/graph/badge.svg)](https://codecov.io/gh/beardedeagle/mnesiac) [![Hex.pm](http://img.shields.io/hexpm/v/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac) [![Hex.pm downloads](https://img.shields.io/hexpm/dt/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac)
 
-Mnesia autoclustering made easy!
+Mnesia auto clustering made easy!
 
 Docs can be found at [https://hexdocs.pm/mnesiac](https://hexdocs.pm/mnesiac).
 
-**_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the api can, and may, change at any time. Please ensure you review the docs and changelog prior to updating.
+**_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the API can, and may, change at any time. Please ensure you review the docs and changelog prior to updating.
 
 ## Installation
 
@@ -28,9 +28,9 @@ Edit your app's config.exs to add the list of mnesia stores by table type:
   - disc_only_copies
 
 - Supported replication factor types:
-  - **_N_** nodes
+  - **_N_** nodes (represented as positive integers)
   - **_N%_** nodes (represented as `.NN` floats)
-  - **_SPECIFIC_** nodes
+  - **_SPECIFIC_** nodes (valid node names only)
 
 ```elixir
 config :mnesiac,
@@ -93,7 +93,7 @@ All stores *MUST* implement its own `store_options/0`, which returns a keyword l
 
 There are three optional callbacks which can be implemented:
 
-- `init_store/1`, which allows users to implement custom table initialisation logic.
+- `init_store/1`, which allows users to implement custom table initialization logic.
 - `copy_store/1`, which allows users to implement a custom call to copy a store.
 - `resolve_conflict/1`, which allows a user to implement logic when table data is found on both the remote node and local node when connecting to a cluster. This currently has no default implementation.
 
