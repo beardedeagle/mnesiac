@@ -15,7 +15,7 @@ Simply add `mnesiac` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:mnesiac, "~> 0.3"}
+    {:mnesiac, "~> 0.4"}
   ]
 end
 ```
@@ -24,9 +24,15 @@ Edit your app's config.exs to add the list of mnesia stores:
 
 ```elixir
 config :mnesiac,
-  stores: [Mnesiac.ExampleStore, ...],
-  schema_type: :disc_copies, # defaults to :ram_copies
-  table_load_timeout: 600_000 # milliseconds, default is 600_000
+  schema: [ # default is :ram_copies, everywhere
+    disc_copies: [node3, node4, node6],
+    ram_copies: [node10, node11]
+  ],
+  stores: [
+    [ref: Mnesiac.ExampleStore, disc_copies: [node3, node4, node6], ram_copies: [node10, node11], blacklist: [node1, node2]],
+    ...
+  ],
+  table_load_timeout: 600_000 # default is 600_000, milliseconds
 ```
 
 Then add `mnesiac` to your supervision tree:

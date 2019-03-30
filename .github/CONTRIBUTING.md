@@ -2,10 +2,10 @@
 
 I welcome any and all ideas, issues and pull requests. Be sure to follow git best practices. A couple of ground rules:
 
-- All code must be formatted.
-- All code must be documented.
-- All code must pass static analysis/linter checks.
-- All code must have test coverage.
+- All code must be formatted, when applicable.
+- All code must be documented, when applicable.
+- All code must pass static analysis/linter checks, when applicable.
+- All code must have test coverage, when applicable.
 
 Exceptions should be avoided whenever possible.
 

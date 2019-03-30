@@ -10,13 +10,11 @@
 
 ## Check list
 
-<!-- ⚠️ Failure to follow this checklist will result in your pull request being closed. ⚠️ -->
-
-- [ ] All new code is formatted.
-- [ ] All new code is documented.
-- [ ] All new code passed static analysis/linter checks.
-- [ ] Added tests to ensure coverage of new code.
-- [ ] All tests passed.
+- [ ] If applicable, all new code is formatted.
+- [ ] If applicable, all new code is documented.
+- [ ] If applicable, all new code passed static analysis/linter checks.
+- [ ] If applicable, added tests to ensure coverage of new code.
+- [ ] If applicable, all tests passed.
 
 ## Additional info
 

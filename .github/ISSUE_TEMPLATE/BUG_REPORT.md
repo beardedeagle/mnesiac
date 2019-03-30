@@ -3,7 +3,7 @@ name: Bug Report
 about: Report a bug to help Mnesiac improve.
 ---
 
-<!-- ⚠️ Failure to follow this template will result in your report being closed. ⚠️ -->
+<!-- ⚠️ Be sure to browse the opened/closed issues before submitting your issue. ⚠️ -->
 
 ## Version and Environment
 

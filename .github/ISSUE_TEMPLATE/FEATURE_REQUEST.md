@@ -3,7 +3,6 @@ name: Feature Request
 about: Propose a change to Mnesiac.
 ---
 
-<!-- ⚠️ Failure to follow this template will result in your request being closed. ⚠️ -->
 <!-- ⚠️ Be sure to browse the opened/closed issues before submitting your issue. ⚠️ -->
 
 ## Proposal
