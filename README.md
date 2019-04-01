@@ -34,8 +34,8 @@ Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mn
 
 - Migrations:
   - Only supports MFA tuples
-  - Fires only in the presence of `migrations` key being present
-  - `rollback_migration/1` will need to be called manually or it could be called from `init_migration` in a custom implementation
+  - Fires only in the presence of `migrations` key being defined. If present in `schema`, it will be silently ignored.
+  - `rollback_migration/1` needs to be called manually or it could be called from `init_migration/1` in a custom implementation
 
 - **_EXAMPLE:_** With `libcluster` using the `Cluster.Strategy.Epmd` strategy:
 
