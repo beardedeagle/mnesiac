@@ -26,9 +26,4 @@ defmodule Mnesiac.Support.ExampleStore do
       index: [:topic_id],
       disc_copies: [node()]
     ]
-
-  @impl true
-  def copy_store do
-    :mnesia.add_table_copy(__MODULE__, node(), :disc_copies)
-  end
 end

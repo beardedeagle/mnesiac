@@ -20,7 +20,7 @@ def deps do
 end
 ```
 
-Edit your app's config.exs to add the list of mnesia stores by type:
+Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mnesia stores by type:
 
 - Supported types:
   - ram_copies
@@ -32,21 +32,6 @@ Edit your app's config.exs to add the list of mnesia stores by type:
   - **_N%_** nodes (represented as `.NN` floats)
   - **_SPECIFIC_** nodes (valid node names only)
 
-```elixir
-config :mnesiac,
-  schema: [ # default is :ram_copies, everywhere
-    disc_copies: [node3, node4, node6],
-    ram_copies: [node10, node11]
-  ],
-  stores: [
-    [ref: Mnesiac.ExampleStore, disc_copies: [node3, node4, node6], ram_copies: [node10, node11], blacklist: [node1, node2]],
-    ...
-  ],
-  store_load_timeout: 600_000 # default is 600_000, milliseconds
-```
-
-Then add `mnesiac` to your supervision tree:
-
 - With `libcluster` using the `Cluster.Strategy.Epmd` strategy:
 
 ```elixir
@@ -54,10 +39,21 @@ Then add `mnesiac` to your supervision tree:
 
     topology = Application.get_env(:libcluster, :topologies)
     hosts = topology[:myapp][:config][:hosts]
+    config = [
+      schema: [ # default is :ram_copies, everywhere
+        disc_copies: [node3, node4, node6],
+        ram_copies: [node10, node11]
+      ],
+      stores: [
+        [ref: Mnesiac.ExampleStore, disc_copies: [node3, node4, node6], ram_copies: [node10, node11], blacklist: [node1, node2]],
+        ...
+      ],
+      store_load_timeout: 600_000 # default is 600_000, milliseconds
+    ]
 
     children = [
       {Cluster.Supervisor, [topology, [name: MyApp.ClusterSupervisor]]},
-      {Mnesiac.Supervisor, [hosts, [name: MyApp.MnesiacSupervisor]]},
+      {Mnesiac.Supervisor, [[hosts: hosts, config: config], [name: MyApp.MnesiacSupervisor]]},
       ...
     ]
 
@@ -73,7 +69,20 @@ Then add `mnesiac` to your supervision tree:
       {
         Mnesiac.Supervisor,
         [
-          [:"test01@127.0.0.1", :"test02@127.0.0.1"],
+          [
+            hosts: [:"test01@127.0.0.1", :"test02@127.0.0.1"],
+            config: [
+              schema: [ # default is :ram_copies, everywhere
+                disc_copies: [node3, node4, node6],
+                ram_copies: [node10, node11]
+              ],
+              stores: [
+                [ref: Mnesiac.ExampleStore, disc_copies: [node3, node4, node6], ram_copies: [node10, node11], blacklist: [node1, node2]],
+                ...
+              ],
+              store_load_timeout: 600_000 # default is 600_000, milliseconds
+            ]
+          ],
           [name: MyApp.MnesiacSupervisor]
         ]
       },
@@ -87,17 +96,19 @@ Then add `mnesiac` to your supervision tree:
 
 ### Store creation
 
-To create a store, `use Mnesiac.Store`, and add it to your app's config.exs. 
+To create a store, `use Mnesiac.Store`, and ensure it's added to the config for Mnesiac you're passing in. 
 
 All stores *MUST* implement its own `store_options/0`, which returns a keyword list of store options.
 
-There are three optional callbacks which can be implemented:
+There are seven optional callbacks which can be implemented:
 
 - `init_schema/1`, which allows users to implement custom schema initialization logic.
 - `copy_schema/1`, which allows users to implement a custom call to copy schema.
 - `init_store/1`, which allows users to implement custom store initialization logic.
 - `copy_store/1`, which allows users to implement a custom call to copy a store.
-- `resolve_conflict/1`, which allows a user to implement logic when it has detected records for a store on both the local and remote nodes it is connecting to. The default implementation is to do nothing.
+- `resolve_conflict/2`, which allows a user to implement logic when it has detected records for a store on both the local and remote nodes it is connecting to. The default implementation is to do nothing.
+- `init_migration/1`, which allows users to implement custom migration logic. The default implementation is to do nothing.
+- `rollback_migration/1`, which allows users to implement custom migration rollback logic. The default implementation is to do nothing.
 
 ```elixir
 defmodule MyApp.ExampleStore do
@@ -159,7 +170,7 @@ mix check
 
 ## Testing
 
-Before you run any tests, ensure that you have cleaned up mnesia:
+Before you run any tests, ensure that you have cleaned up Mnesia:
 
 ```shell
 mix purge.db

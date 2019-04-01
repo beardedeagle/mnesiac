@@ -3,7 +3,6 @@ defmodule MnesiacTest do
   use ExUnit.ClusteredCase, async: false
   doctest Mnesiac
   doctest Mnesiac.Store
-  doctest Mnesiac.StoreManager
   doctest Mnesiac.Supervisor
 
   @single_unnamed_opts [
@@ -16,7 +15,7 @@ defmodule MnesiacTest do
           mnesiac: [
             stores: [Mnesiac.Support.ExampleStore],
             schema_type: :disc_copies,
-            table_load_timeout: 600_000
+            store_load_timeout: 600_000
           ]
         ]
       ]
@@ -33,7 +32,7 @@ defmodule MnesiacTest do
           mnesiac: [
             stores: [Mnesiac.Support.ExampleStore],
             schema_type: :disc_copies,
-            table_load_timeout: 600_000
+            store_load_timeout: 600_000
           ]
         ]
       ]
@@ -50,7 +49,7 @@ defmodule MnesiacTest do
           mnesiac: [
             stores: [Mnesiac.Support.ExampleStore],
             schema_type: :disc_copies,
-            table_load_timeout: 600_000
+            store_load_timeout: 600_000
           ]
         ]
       ],
@@ -61,7 +60,7 @@ defmodule MnesiacTest do
           mnesiac: [
             stores: [Mnesiac.Support.ExampleStore],
             schema_type: :disc_copies,
-            table_load_timeout: 600_000
+            store_load_timeout: 600_000
           ]
         ]
       ]
