@@ -32,7 +32,12 @@ Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mn
   - **_N%_** nodes (represented as `.NN` floats)
   - **_SPECIFIC_** nodes (valid node names only)
 
-- With `libcluster` using the `Cluster.Strategy.Epmd` strategy:
+- Migrations:
+  - Only supports MFA tuples
+  - Fires only in the presence of `migrations` key being present
+  - `rollback_migration/1` will need to be called manually or it could be called from `init_migration` in a custom implementation
+
+- **_EXAMPLE:_** With `libcluster` using the `Cluster.Strategy.Epmd` strategy:
 
 ```elixir
   ...
@@ -46,6 +51,12 @@ Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mn
       ],
       stores: [
         [ref: Mnesiac.ExampleStore, disc_copies: [node3, node4, node6], ram_copies: [node10, node11], blacklist: [node1, node2]],
+        [
+          ref: Mnesiac.ExampleStoreTwo,
+          disc_copies: [node10, node11],
+          ram_copies: [node3, node4, node6],
+          migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
+        ],
         ...
       ],
       store_load_timeout: 600_000 # default is 600_000, milliseconds
@@ -60,7 +71,7 @@ Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mn
   ...
 ```
 
-- Without `libcluster`:
+- **_EXAMPLE:_** Without `libcluster`:
 
 ```elixir
   ...
@@ -78,6 +89,12 @@ Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mn
               ],
               stores: [
                 [ref: Mnesiac.ExampleStore, disc_copies: [node3, node4, node6], ram_copies: [node10, node11], blacklist: [node1, node2]],
+                [
+                  ref: Mnesiac.ExampleStoreTwo,
+                  disc_copies: [node10, node11],
+                  ram_copies: [node3, node4, node6],
+                  migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
+                ],
                 ...
               ],
               store_load_timeout: 600_000 # default is 600_000, milliseconds
@@ -109,6 +126,8 @@ There are seven optional callbacks which can be implemented:
 - `resolve_conflict/2`, which allows a user to implement logic when it has detected records for a store on both the local and remote nodes it is connecting to. The default implementation is to do nothing.
 - `init_migration/1`, which allows users to implement custom migration logic. The default implementation is to do nothing.
 - `rollback_migration/1`, which allows users to implement custom migration rollback logic. The default implementation is to do nothing.
+
+**_MINIMAL EXAMPLE:_**:
 
 ```elixir
 defmodule MyApp.ExampleStore do

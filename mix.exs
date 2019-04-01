@@ -31,7 +31,7 @@ defmodule Mnesiac.MixProject do
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       package: [
-        description: "Autoclustering for mnesia made easy!",
+        description: "Auto clustering for Mnesia made easy!",
         files: ["lib", ".formatter.exs", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md"],
         maintainers: ["beardedeagle"],
         licenses: ["MIT"],
