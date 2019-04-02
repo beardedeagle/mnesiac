@@ -8,6 +8,8 @@ Docs can be found at [https://hexdocs.pm/mnesiac](https://hexdocs.pm/mnesiac).
 
 **_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the API can, and may, change at any time. Please ensure you review the docs and changelog prior to updating.
 
+**_NOTICE:_** Mnesiac allows a significant amount of freedom with how it behaves. This allows you to customize Mnesiac to suit your needs. However, this also allows for a fair amount of foot gunning. Please ensure you've done you're due diligence when using this library, or Mnesia itself for that matter. It isn't a silver bullet, and it shouldn't be treated as one.
+
 ## Installation
 
 Simply add `mnesiac` to your list of dependencies in `mix.exs`:
@@ -29,7 +31,7 @@ Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mn
 
 - Supported replication types:
   - **_N_** nodes (represented as positive integers)
-  - **_N%_** nodes (represented as `.NN` floats)
+  - **_N%_** nodes (represented as `N.NN` floats, where `1.00` would be 100%)
   - **_SPECIFIC_** nodes (valid node names only)
 
 - Migrations:
