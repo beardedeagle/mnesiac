@@ -1,22 +1,27 @@
 defmodule Mnesiac.Supervisor do
-  @moduledoc false
-  require Logger
+  @moduledoc """
+  Mnesiac supervisor.
+
+  TODO: Docs, probably talk about configuration to be passed in.
+  """
   use Supervisor
 
-  def start_link([_config, opts] = args) do
+  @doc """
+  Entry point for Mnesiac when used in a supervision tree.
+  """
+  @spec start_link(args :: [[hosts: [node()], config: keyword()] | keyword()] | [hosts: [node()], config: keyword()]) ::
+          :ignore | {:error, term()} | {:ok, pid()}
+  def start_link([[hosts: _hosts, config: _config], opts] = args) do
     Supervisor.start_link(__MODULE__, args, opts)
   end
 
-  def start_link([config]) do
-    start_link([config, []])
+  def start_link([hosts: _hosts, config: _config] = args) do
+    start_link([args, []])
   end
 
   @impl true
   def init([config, opts]) do
-    Logger.info("[mnesiac:#{node()}] mnesiac starting...")
     Mnesiac.init_mnesia(config)
-    Logger.info("[mnesiac:#{node()}] mnesiac started")
-
     opts = Keyword.put(opts, :strategy, :one_for_one)
     Supervisor.init([], opts)
   end

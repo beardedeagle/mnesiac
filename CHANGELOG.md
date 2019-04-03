@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Removed `Mnesiac.StoreManager` module.
 - Config directory. Configuration is now to be passed in directly.
 
-## Changed
+### Changed
 - `resolve_conflict/1` -> `resolve_conflict/2`, now accepts configuration.
 - Standardized terminology in library.
 - Bumped OTP version.
