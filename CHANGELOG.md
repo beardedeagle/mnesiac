@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Ability to specify how many copies of schema can exist, by type.
 - Ability to specify how many copies of a store can exist, per store by type.
-- Ability to blacklist nodes, per store.
+- Ability to blacklist Mnesia cluster nodes, per store.
 - `init_migration/1` and `rollback_migration/1` overridable callbacks in `Mnesiac.Store`.
 - Structs for explicit config and store contracts.
 - Specs for explicit library contracts.

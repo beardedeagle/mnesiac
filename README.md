@@ -22,22 +22,22 @@ def deps do
 end
 ```
 
-Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mnesia stores by type:
+Then add `mnesiac` to your supervision tree, passing in the cluster and the Mnesiac configuration:
 
 - Supported types:
-  - ram_copies
-  - disc_copies
-  - disc_only_copies
+  - ram_copies.
+  - disc_copies.
+  - disc_only_copies.
 
 - Supported replication types:
-  - **_N_** nodes (represented as positive integers)
-  - **_N%_** nodes (represented as `N.NN` floats, where `1.00` would be 100%)
-  - **_SPECIFIC_** nodes (valid node names only)
+  - **_N_** nodes in Mnesia cluster (represented as positive integers).
+  - **_N%_** of nodes in Mnesia cluster (represented as `N.NN` floats, where `1.00` would be 100%).
+  - **_SPECIFIC_** nodes in Mnesia cluster (valid node names only).
 
 - Migrations:
-  - Only supports MFA tuples
+  - Only supports MFA tuples.
   - Fires only in the presence of `migrations` key being defined. If present in `schema`, it will be silently ignored.
-  - `rollback_migration/1` needs to be called manually or it could be called from `init_migration/1` in a custom implementation
+  - `rollback_migration/1` needs to be called manually or it could be called from `init_migration/1` in a custom implementation.
 
 - **_EXAMPLE:_** With `libcluster` using the `Cluster.Strategy.Epmd` strategy:
 
@@ -45,18 +45,23 @@ Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mn
   ...
 
     topology = Application.get_env(:libcluster, :topologies)
-    hosts = topology[:myapp][:config][:hosts]
+    cluster = topology[:myapp][:config][:hosts]
     config = [
       schema: [ # default is :ram_copies, everywhere
-        disc_copies: [node3, node4, node6],
-        ram_copies: [node10, node11]
+        disc_copies: [:"n3@local", :"n4@local", :"n6@local"],
+        ram_copies: [:"n10@local", :"n11@local"]
       ],
       stores: [
-        [ref: Mnesiac.ExampleStore, disc_copies: [node3, node4, node6], ram_copies: [node10, node11], blacklist: [node1, node2]],
+        [
+          ref: Mnesiac.ExampleStore,
+          disc_copies: [:"n3@local", :"n4@local", :"n6@local"],
+          ram_copies: [:"n10@local", :"n11@local"],
+          blacklist: [:"n10@local", :"n11@local"]
+        ],
         [
           ref: Mnesiac.ExampleStoreTwo,
-          disc_copies: [node10, node11],
-          ram_copies: [node3, node4, node6],
+          disc_copies: [:"n10@local", :"n11@local"],
+          ram_copies: [:"n3@local", :"n4@local", :"n6@local"],
           migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
         ],
         ...
@@ -66,7 +71,7 @@ Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mn
 
     children = [
       {Cluster.Supervisor, [topology, [name: MyApp.ClusterSupervisor]]},
-      {Mnesiac.Supervisor, [[hosts: hosts, config: config], [name: MyApp.MnesiacSupervisor]]},
+      {Mnesiac.Supervisor, [[cluster: cluster, config: config], [name: MyApp.MnesiacSupervisor]]},
       ...
     ]
 
@@ -83,18 +88,23 @@ Then add `mnesiac` to your supervision tree, passing in the hosts the list of Mn
         Mnesiac.Supervisor,
         [
           [
-            hosts: [:"test01@127.0.0.1", :"test02@127.0.0.1"],
+            cluster: [:"n3@local", :"n4@local"],
             config: [
               schema: [ # default is :ram_copies, everywhere
-                disc_copies: [node3, node4, node6],
-                ram_copies: [node10, node11]
+                disc_copies: [:"n3@local", :"n4@local", :"n6@local"],
+                ram_copies: [:"n10@local", :"n11@local"]
               ],
               stores: [
-                [ref: Mnesiac.ExampleStore, disc_copies: [node3, node4, node6], ram_copies: [node10, node11], blacklist: [node1, node2]],
+                [
+                  ref: Mnesiac.ExampleStore,
+                  disc_copies: [:"n3@local", :"n4@local", :"n6@local"],
+                  ram_copies: [:"n10@local", :"n11@local"],
+                  blacklist: [:"n10@local", :"n11@local"]
+                ],
                 [
                   ref: Mnesiac.ExampleStoreTwo,
-                  disc_copies: [node10, node11],
-                  ram_copies: [node3, node4, node6],
+                  disc_copies: [:"n10@local", :"n11@local"],
+                  ram_copies: [:"n3@local", :"n4@local", :"n6@local"],
                   migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
                 ],
                 ...
@@ -122,12 +132,12 @@ All stores *MUST* implement its own `store_options/0`, which returns a keyword l
 There are seven optional callbacks which can be implemented:
 
 - `init_schema/1`, which allows users to implement custom schema initialization logic.
-- `copy_schema/1`, which allows users to implement a custom call to copy schema.
+- `copy_schema/2`, which allows users to implement a custom call to copy schema.
 - `init_store/1`, which allows users to implement custom store initialization logic.
 - `copy_store/1`, which allows users to implement a custom call to copy a store.
-- `resolve_conflict/2`, which allows a user to implement logic when it has detected records for a store on both the local and remote nodes it is connecting to. The default implementation is to do nothing.
 - `init_migration/1`, which allows users to implement custom migration logic. The default implementation is to do nothing.
 - `rollback_migration/1`, which allows users to implement custom migration rollback logic. The default implementation is to do nothing.
+- `resolve_conflict/2`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node.
 
 **_MINIMAL EXAMPLE:_**:
 
@@ -169,7 +179,7 @@ If you are using `libcluster` or another clustering library just ensure that clu
 
 If you are not using `libcluster` or similar clustering library then:
 
-- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia/1` function on the *new node*. This will initialize and copy the store contents from the other online nodes.
+- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia/1` function on the *new node*. This will initialize and copy the store contents from the other online nodes in the Mnesia cluster.
 
 ## Development
 
