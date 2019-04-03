@@ -129,15 +129,17 @@ To create a store, `use Mnesiac.Store`, and ensure it's added to the config for 
 
 All stores *MUST* implement its own `store_options/0`, which returns a keyword list of store options.
 
-There are seven optional callbacks which can be implemented:
+There are nine optional callbacks which can be implemented:
 
-- `init_schema/1`, which allows users to implement custom schema initialization logic.
-- `copy_schema/2`, which allows users to implement a custom call to copy schema.
-- `init_store/1`, which allows users to implement custom store initialization logic.
-- `copy_store/1`, which allows users to implement a custom call to copy a store.
-- `init_migration/1`, which allows users to implement custom migration logic. The default implementation is to do nothing.
-- `rollback_migration/1`, which allows users to implement custom migration rollback logic. The default implementation is to do nothing.
-- `resolve_conflict/2`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node.
+- `init_schema/1`, which allows users to implement custom schema initialization logic. Triggered by Mnesiac.
+- `copy_schema/2`, which allows users to implement a custom call to copy schema. Triggered by Mnesiac.
+- `init_store/1`, which allows users to implement custom store initialization logic. Triggered by Mnesiac.
+- `copy_store/1`, which allows users to implement a custom call to copy a store. Triggered by Mnesiac.
+- `init_migration/1`, which allows users to implement custom migration logic. Triggered by Mnesiac. Default is to do nothing.
+- `rollback_migration/1`, which allows users to implement custom migration rollback logic. Triggered by user. Default is to do nothing.
+- `refresh_cluster/1`, which allows users to implement custom logic to refresh Mnesia cluster. Triggered by user. Default is to do nothing.
+- `backup/1`, which allows users to implement custom logic to back up Mnesia stores. Triggered by user. Default is to do nothing.
+- `resolve_conflict/2`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node.  Triggered by Mnesiac. Default is to do nothing.
 
 **_MINIMAL EXAMPLE:_**:
 
