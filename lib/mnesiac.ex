@@ -231,7 +231,12 @@ defmodule Mnesiac do
   end
 
   defp build_struct(config, override) when is_function(override, 1) do
-    {:ok, override.(config)}
+    with {:ok, config_struct} <- override.(config) do
+      {:ok, config_struct}
+    else
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   defp build_struct(_config, _unsupported) do

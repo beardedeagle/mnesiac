@@ -7,7 +7,10 @@ defmodule Mnesiac.Supervisor do
   @typedoc """
   Default arguments expected to be passed in to Mnesiac. `override` is optional.
   """
-  @type arg :: {:cluster, [node()]} | {:config, config} | {:override, (config -> struct()) | nil}
+  @type arg ::
+          {:cluster, [node()]}
+          | {:config, config}
+          | {:override, (config -> {:ok, struct()} | {:error, term()}) | nil}
 
   @typedoc """
   Default implementation of arguments expected to be passed in to Mnesiac.
