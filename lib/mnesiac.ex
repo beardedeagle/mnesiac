@@ -72,14 +72,10 @@ defmodule Mnesiac do
   def init_mnesia(cluster: cluster, config: config, override: override) do
     case filter_cluster(cluster) do
       [head | _tail] ->
-        config
-        |> build_struct(override)
-        |> join_cluster(head)
+        join_cluster(config, override, head)
 
       [] ->
-        config
-        |> build_struct(override)
-        |> start()
+        start(config, override)
     end
   end
 
@@ -154,15 +150,16 @@ defmodule Mnesiac do
     end)
   end
 
-  defp join_cluster(config, cluster_node) do
-    with :ok <- ensure_dir_exists(),
+  defp join_cluster(config, override, cluster_node) do
+    with {:ok, config_struct} <- build_struct(config, override),
+         :ok <- ensure_dir_exists(),
          :ok <- ensure_stopped(),
          :ok <- :mnesia.delete_schema([node()]),
          :ok <- ensure_started(),
          :ok <- connect(cluster_node),
-         :ok <- copy_schema(config, cluster_node),
-         :ok <- copy_tables(config, cluster_node),
-         :ok <- ensure_tables_loaded(config) do
+         :ok <- copy_schema(config_struct, cluster_node),
+         :ok <- copy_tables(config_struct, cluster_node),
+         :ok <- ensure_tables_loaded(config_struct) do
       :ok
     else
       {:error, reason} ->
@@ -171,13 +168,14 @@ defmodule Mnesiac do
     end
   end
 
-  defp start(config) do
-    with :ok <- ensure_dir_exists(),
+  defp start(config, override) do
+    with {:ok, config_struct} <- build_struct(config, override),
+         :ok <- ensure_dir_exists(),
          :ok <- ensure_stopped(),
          :ok <- ensure_started(),
-         :ok <- copy_schema(config, node()),
-         :ok <- init_tables(config),
-         :ok <- ensure_tables_loaded(config) do
+         :ok <- copy_schema(config_struct, node()),
+         :ok <- init_tables(config_struct),
+         :ok <- ensure_tables_loaded(config_struct) do
       :ok
     else
       {:error, reason} ->
@@ -212,12 +210,13 @@ defmodule Mnesiac do
   end
 
   defp build_struct(config, nil) do
-    struct!(
-      __MODULE__,
-      schema: build_struct(config, :schema),
-      stores: Enum.map(Keyword.get(config, :stores, []), &struct!(Mnesiac.Store, &1)),
-      store_load_timeout: Keyword.get(config, :store_load_timeout, 600_000)
-    )
+    {:ok,
+     struct!(
+       __MODULE__,
+       schema: build_struct(config, :schema),
+       stores: Enum.map(Keyword.get(config, :stores, []), &struct!(Mnesiac.Store, &1)),
+       store_load_timeout: Keyword.get(config, :store_load_timeout, 600_000)
+     )}
   end
 
   defp build_struct(config, :schema) do
@@ -232,7 +231,7 @@ defmodule Mnesiac do
   end
 
   defp build_struct(config, override) when is_function(override, 1) do
-    override.(config)
+    {:ok, override.(config)}
   end
 
   defp build_struct(_config, _unsupported) do
