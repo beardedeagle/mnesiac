@@ -48,25 +48,24 @@ Then add `mnesiac` to your supervision tree, passing in the cluster and the Mnes
     cluster = topology[:myapp][:config][:hosts]
     config = [
       schema: [ # default is :ram_copies, everywhere
-        disc_copies: [:"n3@local", :"n4@local", :"n6@local"],
-        ram_copies: [:"n10@local", :"n11@local"]
+        disc_copies: [:n3@local, :n4@local, :n6@local],
+        ram_copies: [:n10@local, :n11@local]
       ],
       stores: [
-        [
+        [ # default is :ram_copies, everywhere
           ref: Mnesiac.ExampleStore,
-          disc_copies: [:"n3@local", :"n4@local", :"n6@local"],
-          ram_copies: [:"n10@local", :"n11@local"],
-          blacklist: [:"n10@local", :"n11@local"]
+          disc_copies: [:n3@local, :n4@local, :n6@local],
+          ram_copies: [:n10@local, :n11@local],
+          blacklist: [:n10@local, :n11@local]
         ],
         [
           ref: Mnesiac.ExampleStoreTwo,
-          disc_copies: [:"n10@local", :"n11@local"],
-          ram_copies: [:"n3@local", :"n4@local", :"n6@local"],
+          disc_copies: [:n10@local, :n11@local],
+          ram_copies: [:n3@local, :n4@local, :n6@local],
           migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
-        ],
-        ...
+        ]
       ],
-      store_load_timeout: 600_000 # default is 600_000, milliseconds
+        store_load_timeout: 600_000
     ]
 
     children = [
@@ -88,28 +87,27 @@ Then add `mnesiac` to your supervision tree, passing in the cluster and the Mnes
         Mnesiac.Supervisor,
         [
           [
-            cluster: [:"n3@local", :"n4@local"],
+            cluster: [:n3@local, :n4@local],
             config: [
               schema: [ # default is :ram_copies, everywhere
-                disc_copies: [:"n3@local", :"n4@local", :"n6@local"],
-                ram_copies: [:"n10@local", :"n11@local"]
+                disc_copies: [:n3@local, :n4@local, :n6@local],
+                ram_copies: [:n10@local, :n11@local]
               ],
               stores: [
-                [
+                [ # default is :ram_copies, everywhere
                   ref: Mnesiac.ExampleStore,
-                  disc_copies: [:"n3@local", :"n4@local", :"n6@local"],
-                  ram_copies: [:"n10@local", :"n11@local"],
-                  blacklist: [:"n10@local", :"n11@local"]
+                  disc_copies: [:n3@local, :n4@local, :n6@local],
+                  ram_copies: [:n10@local, :n11@local],
+                  blacklist: [:n10@local, :n11@local]
                 ],
                 [
                   ref: Mnesiac.ExampleStoreTwo,
-                  disc_copies: [:"n10@local", :"n11@local"],
-                  ram_copies: [:"n3@local", :"n4@local", :"n6@local"],
+                  disc_copies: [:n10@local, :n11@local],
+                  ram_copies: [:n3@local, :n4@local, :n6@local],
                   migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
-                ],
-                ...
+                ]
               ],
-              store_load_timeout: 600_000 # default is 600_000, milliseconds
+                store_load_timeout: 600_000
             ]
           ],
           [name: MyApp.MnesiacSupervisor]
