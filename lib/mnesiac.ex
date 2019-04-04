@@ -84,6 +84,50 @@ defmodule Mnesiac do
   end
 
   @doc """
+  Validate configuration being passed in to Mnesiac will build to a proper Mneisac configuration struct.
+  ```elixir
+  iex(1)> Mnesiac.validate_config(config)
+  {:ok,
+    %Mnesiac{
+      schema: %Mnesiac.Store{
+        blacklist: [],
+        disc_copies: [:n3@local, :n4@local, :n6@local],
+        disc_only_copies: [],
+        migrations: [],
+        ram_copies: [:n10@local, :n11@local],
+        ref: :schema
+      },
+      store_load_timeout: 600000,
+      stores: [
+        %Mnesiac.Store{
+          blacklist: [:n10@local, :n11@local],
+          disc_copies: [:n3@local, :n4@local, :n6@local],
+          disc_only_copies: [],
+          migrations: [],
+          ram_copies: [:n10@local, :n11@local],
+          ref: Mnesiac.ExampleStore
+        },
+        %Mnesiac.Store{
+          blacklist: [],
+          disc_copies: [:n10@local, :n11@local],
+          disc_only_copies: [],
+          migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}],
+          ram_copies: [:n3@local, :n4@local, :n6@local],
+          ref: Mnesiac.ExampleStoreTwo
+        }
+      ]
+    }}
+  ```
+  """
+  @spec validate_config(
+          config :: Mnesiac.Supervisor.config(),
+          override :: (Mnesiac.Supervisor.config() -> {:ok, struct()} | {:error, term()}) | nil
+        ) :: {:ok, struct()} | {:error, term()}
+  def validate_config(config, override \\ nil) do
+    build_struct(config, override)
+  end
+
+  @doc """
   Get the cluster status.
   ## Example
   ```elixir

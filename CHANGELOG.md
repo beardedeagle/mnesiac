@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Structs for explicit config and store contracts.
 - Specs for explicit library contracts.
 - Escape hatch of sorts, which allows you to override the base Mnesiac configuration struct.
+- `Mnesiac.validate_config/2` which can be used to validate the configuration being passed in to Mnesiac, possible to test override functions too.
 
 ### Removed
 - Removed `Mnesiac.StoreManager` module.
