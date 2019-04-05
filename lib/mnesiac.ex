@@ -217,7 +217,7 @@ defmodule Mnesiac do
          :ok <- ensure_dir_exists(),
          :ok <- ensure_stopped(),
          :ok <- ensure_started(),
-         :ok <- copy_schema(config_struct, node()),
+         :ok <- init_schema(config_struct),
          :ok <- init_tables(config_struct),
          :ok <- ensure_tables_loaded(config_struct) do
       :ok
@@ -275,9 +275,10 @@ defmodule Mnesiac do
   end
 
   defp build_struct(config, override) when is_function(override, 1) do
-    with {:ok, config_struct} <- override.(config) do
-      {:ok, config_struct}
-    else
+    case override.(config) do
+      {:ok, config_struct} ->
+        {:ok, config_struct}
+
       {:error, reason} ->
         {:error, reason}
     end
@@ -316,6 +317,12 @@ defmodule Mnesiac do
     end)
   end
 
+  defp init_schema(config) do
+    Enum.each(config.stores, fn store ->
+      apply(store.ref, :init_schema, [store])
+    end)
+  end
+
   defp copy_tables(config, cluster_node) do
     local_cookies = get_table_cookies()
     remote_cookies = get_table_cookies(cluster_node)
@@ -345,6 +352,9 @@ defmodule Mnesiac do
 
       [] ->
         create_tables(config)
+
+      {:aborted, reason} ->
+        {:error, reason}
     end
   end
 

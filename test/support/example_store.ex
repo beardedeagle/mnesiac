@@ -11,6 +11,7 @@ defmodule Mnesiac.Support.ExampleStore do
     event: nil
   )
 
+  @typedoc false
   @type example ::
           record(
             :example,
