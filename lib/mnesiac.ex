@@ -5,6 +5,27 @@ defmodule Mnesiac do
   require Logger
 
   @typedoc """
+  Default arguments expected to be passed in to Mnesiac. `override` is optional.
+  """
+  @type arg ::
+          {:cluster, [node()]}
+          | {:config, config}
+          | {:override, (config -> {:ok, struct()} | {:error, term()}) | nil}
+
+  @typedoc """
+  Default implementation of arguments expected to be passed in to Mnesiac.
+  """
+  @type init_arg :: [arg]
+
+  @typedoc """
+  Default configuration expected to be passed in to Mnesiac. `store_load_timeout` is optional.
+  """
+  @type config ::
+          {:schema, Mnesiac.Store.config()}
+          | {:stores, [Mnesiac.Store.config(), ...]}
+          | {:store_load_timeout, integer()}
+
+  @typedoc """
   Defines the configuration for mnesiac.
   ## Example
   ```elixir
@@ -68,7 +89,7 @@ defmodule Mnesiac do
   :ok
   ```
   """
-  @spec init_mnesia(Mnesiac.Supervisor.args()) :: :ok | {:error, term()}
+  @spec init_mnesia(Mnesiac.init_arg()) :: :ok | {:error, term()}
   def init_mnesia(cluster: cluster, config: config, override: override) do
     case filter_cluster(cluster) do
       [head | _tail] ->
@@ -120,8 +141,8 @@ defmodule Mnesiac do
   ```
   """
   @spec validate_config(
-          config :: Mnesiac.Supervisor.config(),
-          override :: (Mnesiac.Supervisor.config() -> {:ok, struct()} | {:error, term()}) | nil
+          config :: config(),
+          override :: (config() -> {:ok, struct()} | {:error, term()}) | nil
         ) :: {:ok, struct()} | {:error, term()}
   def validate_config(config, override \\ nil) do
     build_struct(config, override)
