@@ -6,6 +6,30 @@ defmodule Mnesiac.Supervisor do
 
   @doc """
   Entry point for Mnesiac when used in a supervision tree.
+  ```elixir
+  config = [
+    schema: [
+      disc_copies: [:n3@local, :n4@local, :n6@local],
+      ram_copies: [:n10@local, :n11@local]
+    ],
+    stores: [
+      [
+        ref: Mnesiac.ExampleStore,
+        disc_copies: [:n3@local, :n4@local, :n6@local],
+        ram_copies: [:n10@local, :n11@local],
+        blacklist: [:n10@local, :n11@local]
+      ],
+      [
+        ref: Mnesiac.ExampleStoreTwo,
+        disc_copies: [:n10@local, :n11@local],
+        ram_copies: [:n3@local, :n4@local, :n6@local],
+        migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
+      ]
+    ],
+    store_load_timeout: 600_000
+  ]
+  Mnesiac.Supervisor.start_link([hosts: [node()], config: config])
+  ```
   """
   @spec start_link(init_arg :: [Mnesiac.init_arg() | keyword()] | Mnesiac.init_arg()) ::
           :ignore | {:error, term()} | {:ok, pid()}
