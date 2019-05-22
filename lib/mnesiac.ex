@@ -35,7 +35,7 @@ defmodule Mnesiac do
       :ok
     else
       {:error, reason} ->
-        Logger.debug(fn -> "[mnesiac:#{node()}] #{reason}" end)
+        Logger.debug(fn -> "[mnesiac:#{node()}] #{inspect(reason)}" end)
         {:error, reason}
     end
   end
@@ -55,7 +55,7 @@ defmodule Mnesiac do
       :ok
     else
       {:error, reason} ->
-        Logger.debug(fn -> "[mnesiac:#{node()}] #{reason}" end)
+        Logger.debug(fn -> "[mnesiac:#{node()}] #{inspect(reason)}" end)
         {:error, reason}
     end
   end
