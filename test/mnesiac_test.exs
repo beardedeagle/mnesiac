@@ -1,42 +1,17 @@
 defmodule MnesiacTest do
   @moduledoc false
   use ExUnit.ClusteredCase, async: false
-  doctest Mnesiac
-  doctest Mnesiac.Store
-  doctest Mnesiac.Supervisor
 
   @single_unnamed_opts [
     boot_timeout: 10_000,
-    nodes: [
-      [
-        name: :"test01@127.0.0.1",
-        config: [
-          mnesia: [dir: to_charlist(Path.join(File.cwd!(), "test01"))],
-          mnesiac: [
-            stores: [Mnesiac.Support.ExampleStore],
-            schema_type: :disc_copies,
-            store_load_timeout: 600_000
-          ]
-        ]
-      ]
-    ]
+    config: [mnesia: [dir: to_charlist(Path.join(File.cwd!(), "test01"))]],
+    nodes: [[name: :"test01@127.0.0.1"]]
   ]
 
   @single_named_opts [
     boot_timeout: 10_000,
-    nodes: [
-      [
-        name: :"test02@127.0.0.1",
-        config: [
-          mnesia: [dir: to_charlist(Path.join(File.cwd!(), "test02"))],
-          mnesiac: [
-            stores: [Mnesiac.Support.ExampleStore],
-            schema_type: :disc_copies,
-            store_load_timeout: 600_000
-          ]
-        ]
-      ]
-    ]
+    config: [mnesia: [dir: to_charlist(Path.join(File.cwd!(), "test02"))]],
+    nodes: [[name: :"test02@127.0.0.1"]]
   ]
 
   @distributed_opts [
@@ -44,32 +19,24 @@ defmodule MnesiacTest do
     nodes: [
       [
         name: :"test03@127.0.0.1",
-        config: [
-          mnesia: [dir: to_charlist(Path.join(File.cwd!(), "test03"))],
-          mnesiac: [
-            stores: [Mnesiac.Support.ExampleStore],
-            schema_type: :disc_copies,
-            store_load_timeout: 600_000
-          ]
-        ]
+        config: [mnesia: [dir: to_charlist(Path.join(File.cwd!(), "test03"))]]
       ],
       [
         name: :"test04@127.0.0.1",
-        config: [
-          mnesia: [dir: to_charlist(Path.join(File.cwd!(), "test04"))],
-          mnesiac: [
-            stores: [Mnesiac.Support.ExampleStore],
-            schema_type: :disc_copies,
-            store_load_timeout: 600_000
-          ]
-        ]
+        config: [mnesia: [dir: to_charlist(Path.join(File.cwd!(), "test04"))]]
       ]
     ]
   ]
 
   scenario "single node test with mnesiac supervisor/1", @single_unnamed_opts do
     node_setup do
-      {:ok, _pid} = Mnesiac.Supervisor.start_link([[node()]])
+      config = [
+        schema: [disc_copies: [node()]],
+        stores: [[ref: Mnesiac.Support.ExampleStore, disc_copies: [node()]]],
+        store_load_timeout: 600_000
+      ]
+
+      {:ok, _pid} = Mnesiac.Supervisor.start_link([hosts: [node()], config: config])
       :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 5000)
     end
 
@@ -86,13 +53,13 @@ defmodule MnesiacTest do
     test "cluster status", %{cluster: cluster} do
       [node_a] = Cluster.members(cluster)
 
-      assert [{:running_nodes, [node_a]}] = Cluster.call(node_a, Mnesiac, :cluster_status, [])
+      assert {:ok, [{:running_nodes, [node_a]}]} = Cluster.call(node_a, Mnesiac, :cluster_status, [])
     end
 
     test "running nodes", %{cluster: cluster} do
       [node_a] = Cluster.members(cluster)
 
-      assert [node_a] = Cluster.call(node_a, Mnesiac, :running_nodes, [])
+      assert {:ok, [node_a]} = Cluster.call(node_a, Mnesiac, :running_nodes, [])
     end
 
     test "node in cluster", %{cluster: cluster} do
@@ -110,7 +77,15 @@ defmodule MnesiacTest do
 
   scenario "single node test with mnesiac supervisor/2", @single_named_opts do
     node_setup do
-      {:ok, _pid} = Mnesiac.Supervisor.start_link([[node()], [name: Mnesiac.SupervisorSingleTest]])
+      config = [
+        schema: [disc_copies: [node()]],
+        stores: [[ref: Mnesiac.Support.ExampleStore, disc_copies: [node()]]],
+        store_load_timeout: 600_000
+      ]
+
+      {:ok, _pid} =
+        Mnesiac.Supervisor.start_link([[hosts: [node()], config: config], [name: Mnesiac.SupervisorSingleTest]])
+
       :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 5000)
     end
 

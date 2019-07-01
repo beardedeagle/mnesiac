@@ -322,11 +322,8 @@ defmodule Mnesiac do
         {nil, _} ->
           apply(store.ref, :copy_store, [store])
 
-        # TODO: should this be a :error? I'm inclined to say no, but we could just throw the logger message into
-        # the error tuple and buble it up to join_cluster. idk, will review with others.
         {_, nil} ->
-          Logger.info("[mnesiac:#{node()}] #{inspect(store.ref)}: no remote records to copy found.")
-          {:error, :no_remote_records_to_copy}
+          {:error, {:no_remote_records_to_copy, store.ref, cluster_node}}
 
         {_local, _remote} ->
           apply(store.ref, :resolve_conflict, [config, cluster_node])
