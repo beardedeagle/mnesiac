@@ -179,22 +179,15 @@ defmodule Mnesiac.Store do
       require Logger
       @behaviour Mnesiac.Store
 
-      def init_schema(config) do
-        copy_schema(config, node())
-      end
+      def init_schema(config), do: copy_schema(config, node())
 
       def copy_schema(config, cluster_node) do
         copy_type = config.schema
 
         case :mnesia.change_table_copy_type(:schema, cluster_node, copy_type) do
-          {:atomic, :ok} ->
-            :ok
-
-          {:aborted, {:already_exists, :schema, _, _}} ->
-            :ok
-
-          {:aborted, reason} ->
-            {:error, reason}
+          {:atomic, :ok} -> :ok
+          {:aborted, {:already_exists, :schema, _, _}} -> :ok
+          {:aborted, reason} -> {:error, reason}
         end
       end
 

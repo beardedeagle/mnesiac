@@ -92,11 +92,8 @@ defmodule Mnesiac do
   @spec init_mnesia(Mnesiac.init_arg()) :: :ok | {:error, term()}
   def init_mnesia(cluster: cluster, config: config, override: override) do
     case filter_cluster(cluster) do
-      [head | _tail] ->
-        join_cluster(config, override, head)
-
-      [] ->
-        start(config, override)
+      [head | _tail] -> join_cluster(config, override, head)
+      [] -> start(config, override)
     end
   end
 
@@ -201,11 +198,7 @@ defmodule Mnesiac do
     Enum.member?(cluster, cluster_node)
   end
 
-  defp filter_cluster(nodes) do
-    Enum.filter(Node.list(), fn node ->
-      node in List.flatten(nodes)
-    end)
-  end
+  defp filter_cluster(nodes), do: Enum.filter(Node.list(), fn node -> node in List.flatten(nodes) end)
 
   defp join_cluster(config, override, cluster_node) do
     with {:ok, config_struct} <- build_struct(config, override),
@@ -248,11 +241,8 @@ defmodule Mnesiac do
          :ok <- File.mkdir(mnesia_dir) do
       :ok
     else
-      true ->
-        :ok
-
-      {:error, reason} ->
-        {:error, reason}
+      true -> :ok
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -261,8 +251,7 @@ defmodule Mnesiac do
          :ok <- wait_for(:stop) do
       :ok
     else
-      {:error, reason} ->
-        {:error, reason}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -289,52 +278,35 @@ defmodule Mnesiac do
 
   defp build_struct(config, override) when is_function(override, 1) do
     case override.(config) do
-      {:ok, config_struct} ->
-        {:ok, config_struct}
-
-      {:error, reason} ->
-        {:error, reason}
+      {:ok, config_struct} -> {:ok, config_struct}
+      {:error, reason} -> {:error, reason}
     end
   end
 
-  defp build_struct(_config, _unsupported) do
-    {:error, {:build_struct_failed, :unsupported_override_type}}
-  end
+  defp build_struct(_config, _unsupported), do: {:error, {:build_struct_failed, :unsupported_override_type}}
 
   defp ensure_started do
     with :ok <- :mnesia.start(),
          :ok <- wait_for(:start) do
       :ok
     else
-      {:error, reason} ->
-        {:error, reason}
+      {:error, reason} -> {:error, reason}
     end
   end
 
   defp connect(cluster_node) do
     case :mnesia.change_config(:extra_db_nodes, [cluster_node]) do
-      {:ok, [_cluster_node]} ->
-        :ok
-
-      {:ok, []} ->
-        {:error, {:failed_to_connect_node, cluster_node}}
-
-      {:error, reason} ->
-        {:error, reason}
+      {:ok, [_cluster_node]} -> :ok
+      {:ok, []} -> {:error, {:failed_to_connect_node, cluster_node}}
+      {:error, reason} -> {:error, reason}
     end
   end
 
   defp copy_schema(config, cluster_node) do
-    Enum.each(config.stores, fn store ->
-      apply(store.ref, :copy_schema, [store, cluster_node])
-    end)
+    Enum.each(config.stores, fn store -> apply(store.ref, :copy_schema, [store, cluster_node]) end)
   end
 
-  defp init_schema(config) do
-    Enum.each(config.stores, fn store ->
-      apply(store.ref, :init_schema, [store])
-    end)
-  end
+  defp init_schema(config), do: Enum.each(config.stores, fn store -> apply(store.ref, :init_schema, [store]) end)
 
   defp copy_tables(config, cluster_node) do
     local_cookies = get_table_cookies()
@@ -350,6 +322,8 @@ defmodule Mnesiac do
         {nil, _} ->
           apply(store.ref, :copy_store, [store])
 
+        # TODO: should this be a :error? I'm inclined to say no, but we could just throw the logger message into
+        # the error tuple and buble it up to join_cluster. idk, will review with others.
         {_, nil} ->
           Logger.info("[mnesiac:#{node()}] #{inspect(store.ref)}: no remote records to copy found.")
           {:error, :no_remote_records_to_copy}
@@ -362,35 +336,21 @@ defmodule Mnesiac do
 
   defp init_tables(config) do
     case :mnesia.system_info(:extra_db_nodes) do
-      [head | _tail] ->
-        copy_tables(config, head)
-
-      [] ->
-        create_tables(config)
-
-      {:aborted, reason} ->
-        {:error, reason}
+      [head | _tail] -> copy_tables(config, head)
+      [] -> create_tables(config)
+      {:aborted, reason} -> {:error, reason}
     end
   end
 
-  defp create_tables(config) do
-    Enum.each(config.stores, fn store ->
-      apply(store.ref, :init_store, [store])
-    end)
-  end
+  defp create_tables(config), do: Enum.each(config.stores, fn store -> apply(store.ref, :init_store, [store]) end)
 
   defp ensure_tables_loaded(config) do
     tables = :mnesia.system_info(:local_tables)
 
     case :mnesia.wait_for_tables(tables, config.store_load_timeout) do
-      :ok ->
-        :ok
-
-      {:error, reason} ->
-        {:error, reason}
-
-      {:timeout, bad_tables} ->
-        {:error, {:timeout, bad_tables}}
+      :ok -> :ok
+      {:error, reason} -> {:error, reason}
+      {:timeout, bad_tables} -> {:error, {:timeout, bad_tables}}
     end
   end
 
