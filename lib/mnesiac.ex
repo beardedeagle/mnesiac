@@ -100,9 +100,7 @@ defmodule Mnesiac do
     end
   end
 
-  def init_mnesia(cluster: cluster, config: config) do
-    init_mnesia(cluster: cluster, config: config, override: nil)
-  end
+  def init_mnesia(cluster: cluster, config: config), do: init_mnesia(cluster: cluster, config: config, override: nil)
 
   @doc """
   Validate configuration being passed in to Mnesiac will build to a proper Mneisac configuration struct.
@@ -144,9 +142,7 @@ defmodule Mnesiac do
           config :: config(),
           override :: (config() -> {:ok, struct()} | {:error, term()}) | nil
         ) :: {:ok, struct()} | {:error, term()}
-  def validate_config(config, override \\ nil) do
-    build_struct(config, override)
-  end
+  def validate_config(config, override \\ nil), do: build_struct(config, override)
 
   @doc """
   Get the cluster status.
@@ -178,9 +174,7 @@ defmodule Mnesiac do
   ```
   """
   @spec running_nodes() :: {:ok, [node()]}
-  def running_nodes do
-    {:ok, :mnesia.system_info(:running_db_nodes)}
-  end
+  def running_nodes, do: {:ok, :mnesia.system_info(:running_db_nodes)}
 
   @doc """
   Is this node in the Mnesia cluster?
@@ -191,9 +185,7 @@ defmodule Mnesiac do
   ```
   """
   @spec node_in_cluster?(cluster_node :: node()) :: true | false
-  def node_in_cluster?(cluster_node) do
-    Enum.member?(:mnesia.system_info(:db_nodes), cluster_node)
-  end
+  def node_in_cluster?(cluster_node), do: Enum.member?(:mnesia.system_info(:db_nodes), cluster_node)
 
   @doc """
   Is this node running Mnesia?
@@ -228,7 +220,7 @@ defmodule Mnesiac do
       :ok
     else
       {:error, reason} ->
-        Logger.debug(fn -> "[mnesiac:#{node()}] #{reason}" end)
+        Logger.debug(fn -> "[mnesiac:#{node()}] #{inspect(reason)}" end)
         {:error, reason}
     end
   end
@@ -244,7 +236,7 @@ defmodule Mnesiac do
       :ok
     else
       {:error, reason} ->
-        Logger.debug(fn -> "[mnesiac:#{node()}] #{reason}" end)
+        Logger.debug(fn -> "[mnesiac:#{node()}] #{inspect(reason)}" end)
         {:error, reason}
     end
   end
@@ -349,7 +341,9 @@ defmodule Mnesiac do
     remote_cookies = get_table_cookies(cluster_node)
 
     Enum.each(config.stores, fn store ->
-      case {local_cookies[store.ref], remote_cookies[store.ref]} do
+      cookie = Keyword.get(store.ref.store_options(), :record_name, store.ref)
+
+      case {local_cookies[cookie], remote_cookies[cookie]} do
         {nil, nil} ->
           apply(store.ref, :init_store, [store])
 

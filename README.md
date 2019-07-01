@@ -174,6 +174,7 @@ defmodule MyApp.ExampleStore do
   @impl true
   def store_options,
     do: [
+      record_name: __MODULE__,
       attributes: example() |> example() |> Keyword.keys(),
       index: [:topic_id],
       ram_copies: [node()]

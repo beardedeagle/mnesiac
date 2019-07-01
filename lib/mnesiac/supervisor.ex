@@ -37,9 +37,7 @@ defmodule Mnesiac.Supervisor do
     Supervisor.start_link(__MODULE__, init_arg, opts)
   end
 
-  def start_link([cluster: _cluster, config: _config] = init_arg) do
-    start_link([init_arg, []])
-  end
+  def start_link([cluster: _cluster, config: _config] = init_arg), do: start_link([init_arg, []])
 
   @impl true
   def init([config, opts]) do
