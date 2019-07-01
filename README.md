@@ -8,7 +8,7 @@ Docs can be found at [https://hexdocs.pm/mnesiac](https://hexdocs.pm/mnesiac).
 
 **_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the API can, and may, change at any time. Please ensure you review the docs and changelog prior to updating.
 
-**_NOTICE:_** Mnesiac allows a significant amount of freedom with how it behaves. This allows you to customize Mnesiac to suit your needs. However, this also allows for a fair amount of foot gunning. Please ensure you've done you're due diligence when using this library, or Mnesia itself for that matter. It isn't a silver bullet, and it shouldn't be treated as one.
+**_NOTICE:_** Mnesiac allows a significant amount of freedom with how it behaves. This allows you to customize Mnesiac to suit your needs. However, this also allows for a fair amount of foot gunning. Please ensure you've done your due diligence when using this library, or Mnesia itself for that matter. It isn't a silver bullet, and it shouldn't be treated as one.
 
 ## Installation
 
@@ -125,7 +125,7 @@ Then add `mnesiac` to your supervision tree, passing in the cluster and the Mnes
 
 To create a store, `use Mnesiac.Store`, and ensure it's added to the config for Mnesiac you're passing in. 
 
-All stores *MUST* implement its own `store_options/0`, which returns a keyword list of store options.
+All stores **_MUST_** implement its own `store_options/0`, which returns a keyword list of store options.
 
 There are nine optional callbacks which can be implemented:
 
@@ -137,16 +137,21 @@ There are nine optional callbacks which can be implemented:
 - `rollback_migration/1`, which allows users to implement custom migration rollback logic. Triggered by user. Default is to do nothing.
 - `refresh_cluster/1`, which allows users to implement custom logic to refresh Mnesia cluster. Triggered by user. Default is to do nothing.
 - `backup/1`, which allows users to implement custom logic to back up Mnesia stores. Triggered by user. Default is to do nothing.
-- `resolve_conflict/2`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node.  Triggered by Mnesiac. Default is to do nothing.
+- `resolve_conflict/2`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node. Triggered by Mnesiac. Default is to do nothing.
 
 **_MINIMAL EXAMPLE:_**:
 
 ```elixir
 defmodule MyApp.ExampleStore do
-  @moduledoc false
-  require Record
+  @moduledoc """
+  Provides the structure of ExampleStore records for a minimal example of Mnesiac.
+  """
   use Mnesiac.Store
+  import Record, only: [defrecord: 3]
 
+  @doc """
+  Record definition for ExampleStore example record.
+  """
   Record.defrecord(
     :example,
     __MODULE__,
@@ -155,6 +160,9 @@ defmodule MyApp.ExampleStore do
     event: nil
   )
 
+  @typedoc """
+  ExampleStore example record field type definitions.
+  """
   @type example ::
           record(
             :example,
@@ -175,15 +183,15 @@ end
 
 ### Clustering
 
-If you are using `libcluster` or another clustering library just ensure that clustering library starts earlier than `mnesiac`. That's all, you don't need to do anything else.
+If you are using `libcluster` or another clustering library, ensure that the clustering library starts before `mnesiac`. That's all, you don't need to do anything else.
 
-If you are not using `libcluster` or similar clustering library then:
+If you are not using `libcluster` or similar clustering libraries then:
 
-- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia/1` function on the *new node*. This will initialize and copy the store contents from the other online nodes in the Mnesia cluster.
+- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia/1` function on the **_new node_**. This will initialize and copy the store contents from the other online nodes in the Mnesia cluster.
 
 ## Development
 
-Ensure you have the proper language versions installed. To do this, an `asdf` tools file is provided. Run the following:
+Ensure you have the proper language versions installed. To do this, an `asdf` tools file has been provided. Run the following:
 
 ```shell
 git clone https://github.com/beardedeagle/mnesiac.git
@@ -194,10 +202,17 @@ mix local.rebar --force
 mix deps.get --force
 mix deps.compile --force
 mix compile --force
-mix check
 ```
 
 **_NOTICE:_** You can find the `asdf` tool [here][1].
+
+## Linting and static analysis
+
+Mnesiac provides a single command for linting and static analysis:
+
+```shell
+mix check
+```
 
 ## Testing
 

@@ -43,7 +43,7 @@ defmodule Mnesiac.MixProject do
         formatters: ["html", "epub"]
       ],
       aliases: [
-        check: ["format", "compile --force", "credo --strict --all", "inch"],
+        check: ["format", "compile --warning-as-errors --force", "credo --strict --all", "inch"],
         "purge.db": &purge_db/1
       ],
       name: "Mnesiac",
@@ -63,11 +63,11 @@ defmodule Mnesiac.MixProject do
 
   defp deps do
     [
-      {:libcluster, "~> 3.0", optional: true},
-      {:credo, "~> 1.0", only: [:dev], runtime: false},
+      {:libcluster, "~> 3.1", optional: true},
+      {:credo, "~> 1.1", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0.0-rc", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.20", only: [:dev], runtime: false},
-      {:ex_unit_clustered_case, "~> 0.3", only: [:dev, :test]},
+      {:ex_unit_clustered_case, "~> 0.4", only: [:dev, :test]},
       {:excoveralls, "~> 0.11", only: [:dev, :test], runtime: false},
       {:inch_ex, "~> 2.0", only: [:dev], runtime: false}
     ]
