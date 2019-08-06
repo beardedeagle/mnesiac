@@ -182,6 +182,7 @@ defmodule Mnesiac.Store do
       def init_schema(config), do: copy_schema(config, node())
 
       def copy_schema(config, cluster_node) do
+        IO.inspect(config)
         copy_type = config.schema
 
         case :mnesia.change_table_copy_type(:schema, cluster_node, copy_type) do

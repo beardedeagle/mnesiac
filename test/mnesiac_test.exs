@@ -36,7 +36,7 @@ defmodule MnesiacTest do
         store_load_timeout: 600_000
       ]
 
-      {:ok, _pid} = Mnesiac.Supervisor.start_link([hosts: [node()], config: config])
+      {:ok, _pid} = Mnesiac.Supervisor.start_link(cluster: [node()], config: config)
       :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 5000)
     end
 
@@ -84,7 +84,7 @@ defmodule MnesiacTest do
       ]
 
       {:ok, _pid} =
-        Mnesiac.Supervisor.start_link([[hosts: [node()], config: config], [name: Mnesiac.SupervisorSingleTest]])
+        Mnesiac.Supervisor.start_link([[cluster: [node()], config: config], [name: Mnesiac.SupervisorSingleTest]])
 
       :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 5000)
     end

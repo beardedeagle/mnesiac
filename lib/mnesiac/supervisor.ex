@@ -28,7 +28,7 @@ defmodule Mnesiac.Supervisor do
     ],
     store_load_timeout: 600_000
   ]
-  Mnesiac.Supervisor.start_link([hosts: [node()], config: config])
+  Mnesiac.Supervisor.start_link([cluster: [node()], config: config])
   ```
   """
   @spec start_link(init_arg :: [Mnesiac.init_arg() | keyword()] | Mnesiac.init_arg()) ::

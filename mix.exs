@@ -66,7 +66,7 @@ defmodule Mnesiac.MixProject do
       {:libcluster, "~> 3.1", optional: true},
       {:credo, "~> 1.1", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0.0-rc", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.20", only: [:dev], runtime: false},
+      {:ex_doc, "~> 0.21", only: [:dev], runtime: false},
       {:ex_unit_clustered_case, "~> 0.4", only: [:dev, :test]},
       {:excoveralls, "~> 0.11", only: [:dev, :test], runtime: false},
       {:inch_ex, "~> 2.0", only: [:dev], runtime: false}
