@@ -302,7 +302,8 @@ defmodule Mnesiac do
     end
   end
 
-  defp copy_schema(config, cluster_node) do # issue here
+  # TODO: fix schema
+  defp copy_schema(config, cluster_node) do
     Enum.each(config.stores, fn store -> apply(store.ref, :copy_schema, [store, cluster_node]) end)
   end
 

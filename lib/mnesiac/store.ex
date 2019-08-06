@@ -182,7 +182,6 @@ defmodule Mnesiac.Store do
       def init_schema(config), do: copy_schema(config, node())
 
       def copy_schema(config, cluster_node) do
-        IO.inspect(config)
         copy_type = config.schema
 
         case :mnesia.change_table_copy_type(:schema, cluster_node, copy_type) do
@@ -206,21 +205,13 @@ defmodule Mnesiac.Store do
         end
       end
 
-      def init_migration(_config) do
-        :ok
-      end
+      def init_migration(_config), do: :ok
 
-      def rollback_migration(_config) do
-        :ok
-      end
+      def rollback_migration(_config), do: :ok
 
-      def refresh_cluster(_config) do
-        :ok
-      end
+      def refresh_cluster(_config), do: :ok
 
-      def backup(_config) do
-        :ok
-      end
+      def backup(_config), do: :ok
 
       def resolve_conflict(_config, cluster_node) do
         store_name = Keyword.get(store_options(), :record_name, __MODULE__)
