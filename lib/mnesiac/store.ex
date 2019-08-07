@@ -2,6 +2,7 @@ defmodule Mnesiac.Store do
   @moduledoc """
   Defines an mnesiac store and contains overridable callbacks.
   """
+  require Logger
 
   @typedoc """
   Default store configuration expected to be passed in to Mnesiac. Everything is optional except `ref`.
@@ -174,60 +175,56 @@ defmodule Mnesiac.Store do
                       backup: 1,
                       resolve_conflict: 2
 
+  def init_schema(config), do: copy_schema(config, node())
+
+  def copy_schema(config, cluster_node) do
+    Enum.each(Map.from_struct(config.schema), fn {type, nodes} ->
+      enum_schema(type, cluster_node, nodes)
+    end)
+  end
+
+  def init_store(config) do
+    :mnesia.create_table(Keyword.get(config.ref.store_options(), :record_name, __MODULE__), config.ref.store_options())
+  end
+
+  def copy_store(config) do
+    for type <- [:ram_copies, :disc_copies, :disc_only_copies] do
+      value = Keyword.get(config.ref.store_options(), type, [])
+
+      if Enum.member?(value, node()) do
+        :mnesia.add_table_copy(Keyword.get(config.ref.store_options(), :record_name, __MODULE__), node(), type)
+      end
+    end
+  end
+
+  def init_migration(_config), do: :ok
+
+  def rollback_migration(_config), do: :ok
+
+  def refresh_cluster(_config), do: :ok
+
+  def backup(_config), do: :ok
+
+  def resolve_conflict(config, _cluster_node) do
+    store_name = Keyword.get(config.ref.store_options(), :record_name, __MODULE__)
+    Logger.info("[mnesiac:#{node()}] #{inspect(store_name)}: records found on both sides, copy aborted.")
+
+    :ok
+  end
+
+  defp enum_schema(type, cluster_node, nodes) do
+    if node() in nodes do
+      case :mnesia.change_table_copy_type(:schema, cluster_node, type) do
+        {:atomic, :ok} -> :ok
+        {:aborted, {:already_exists, :schema, _, _}} -> :ok
+        {:aborted, reason} -> {:error, reason}
+      end
+    end
+  end
+
   defmacro __using__(_) do
     quote do
-      require Logger
       @behaviour Mnesiac.Store
-
-      def init_schema(config), do: copy_schema(config, node())
-
-      def copy_schema(config, cluster_node) do
-        Enum.each(config.schema, fn {type, nodes} ->
-          enum_schema(type, cluster_node, nodes)
-        end)
-      end
-
-      def init_store(config) do
-        :mnesia.create_table(Keyword.get(store_options(), :record_name, __MODULE__), store_options())
-      end
-
-      def copy_store(config) do
-        for type <- [:ram_copies, :disc_copies, :disc_only_copies] do
-          value = Keyword.get(store_options(), type, [])
-
-          if Enum.member?(value, node()) do
-            :mnesia.add_table_copy(Keyword.get(store_options(), :record_name, __MODULE__), node(), type)
-          end
-        end
-      end
-
-      def init_migration(_config), do: :ok
-
-      def rollback_migration(_config), do: :ok
-
-      def refresh_cluster(_config), do: :ok
-
-      def backup(_config), do: :ok
-
-      def resolve_conflict(_config, cluster_node) do
-        store_name = Keyword.get(store_options(), :record_name, __MODULE__)
-        Logger.info("[mnesiac:#{node()}] #{inspect(store_name)}: records found on both sides, copy aborted.")
-
-        :ok
-      end
-
-      defp enum_schema(type, cluster_node, nodes) do
-        Enum.each(nodes, fn node ->
-          if node() == node do
-            case :mnesia.change_table_copy_type(:schema, cluster_node, type) do
-              {:atomic, :ok} -> :ok
-              {:aborted, {:already_exists, :schema, _, _}} -> :ok
-              {:aborted, reason} -> {:error, reason}
-            end
-          end
-        end)
-      end
-
       defoverridable Mnesiac.Store
     end
   end

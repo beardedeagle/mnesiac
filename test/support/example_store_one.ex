@@ -1,19 +1,19 @@
-defmodule Mnesiac.Support.ExampleStore do
+defmodule Mnesiac.Support.ExampleStoreOne do
   @moduledoc false
   use Mnesiac.Store
   import Record, only: [defrecord: 3]
 
   defrecord(
-    :example,
-    ExampleStore,
+    :exampleone,
+    ExampleStoreOne,
     id: nil,
     topic_id: nil,
     event: nil
   )
 
-  @type example ::
+  @type exampleone ::
           record(
-            :example,
+            :exampleone,
             id: String.t(),
             topic_id: String.t(),
             event: String.t()
@@ -22,8 +22,8 @@ defmodule Mnesiac.Support.ExampleStore do
   @impl true
   def store_options,
     do: [
-      record_name: ExampleStore,
-      attributes: example() |> example() |> Keyword.keys(),
+      record_name: ExampleStoreOne,
+      attributes: exampleone() |> exampleone() |> Keyword.keys(),
       index: [:topic_id],
       disc_copies: [node()]
     ]

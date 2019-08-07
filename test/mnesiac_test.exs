@@ -32,12 +32,12 @@ defmodule MnesiacTest do
     node_setup do
       config = [
         schema: [disc_copies: [node()]],
-        stores: [[ref: Mnesiac.Support.ExampleStore, disc_copies: [node()]]],
+        stores: [[ref: Mnesiac.Support.ExampleStoreOne, disc_copies: [node()]]],
         store_load_timeout: 600_000
       ]
 
       {:ok, _pid} = Mnesiac.Supervisor.start_link(cluster: [node()], config: config)
-      :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 5000)
+      :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStoreOne], 5000)
     end
 
     test "tables exist", %{cluster: cluster} do
@@ -46,7 +46,7 @@ defmodule MnesiacTest do
       tables = Cluster.call(node_a, :mnesia, :system_info, [:tables])
 
       assert true = Cluster.call(node_a, Enum, :member?, [tables, :schema])
-      assert true = Cluster.call(node_a, Enum, :member?, [tables, Mnesiac.Support.ExampleStore])
+      assert true = Cluster.call(node_a, Enum, :member?, [tables, Mnesiac.Support.ExampleStoreOne])
       assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
     end
 
@@ -79,14 +79,14 @@ defmodule MnesiacTest do
     node_setup do
       config = [
         schema: [disc_copies: [node()]],
-        stores: [[ref: Mnesiac.Support.ExampleStore, disc_copies: [node()]]],
+        stores: [[ref: Mnesiac.Support.ExampleStoreOne, disc_copies: [node()]]],
         store_load_timeout: 600_000
       ]
 
       {:ok, _pid} =
         Mnesiac.Supervisor.start_link([[cluster: [node()], config: config], [name: Mnesiac.SupervisorSingleTest]])
 
-      :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 5000)
+      :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStoreOne], 5000)
     end
 
     test "tables exist", %{cluster: cluster} do
@@ -95,20 +95,20 @@ defmodule MnesiacTest do
       tables = Cluster.call(node_a, :mnesia, :system_info, [:tables])
 
       assert true = Cluster.call(node_a, Enum, :member?, [tables, :schema])
-      assert true = Cluster.call(node_a, Enum, :member?, [tables, Mnesiac.Support.ExampleStore])
+      assert true = Cluster.call(node_a, Enum, :member?, [tables, Mnesiac.Support.ExampleStoreOne])
       assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
     end
 
     test "cluster status", %{cluster: cluster} do
       [node_a] = Cluster.members(cluster)
 
-      assert [{:running_nodes, [node_a]}] = Cluster.call(node_a, Mnesiac, :cluster_status, [])
+      assert {:ok, [running_nodes: [node_a]]} = Cluster.call(node_a, Mnesiac, :cluster_status, [])
     end
 
     test "running nodes", %{cluster: cluster} do
       [node_a] = Cluster.members(cluster)
 
-      assert [node_a] = Cluster.call(node_a, Mnesiac, :running_nodes, [])
+      assert {:ok, [node_a]} = Cluster.call(node_a, Mnesiac, :running_nodes, [])
     end
 
     test "node in cluster", %{cluster: cluster} do
@@ -126,12 +126,25 @@ defmodule MnesiacTest do
 
   scenario "distributed test", @distributed_opts do
     node_setup do
-      {:ok, _pid} = Mnesiac.Supervisor.start_link([[:"test03@127.0.0.1", :"test04@127.0.0.1"]])
+      config = [
+        schema: [disc_copies: [node()]],
+        stores: [
+          [ref: Mnesiac.Support.ExampleStoreOne, disc_copies: [node()]],
+          [ref: Mnesiac.Support.ExampleStoreTwo, disc_copies: [node()]]
+        ],
+        store_load_timeout: 600_000
+      ]
+
+      {:ok, _pid} =
+        Mnesiac.Supervisor.start_link([
+          [cluster: [:"test03@127.0.0.1", :"test04@127.0.0.1"], config: config],
+          [name: Mnesiac.SupervisorSingleTest]
+        ])
 
       if node() == :"test03@127.0.0.1" do
-        :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 5000)
+        :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStoreOne, Mnesiac.Support.ExampleStoreTwo], 5000)
       else
-        :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStore], 10_000)
+        :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStoreOne, Mnesiac.Support.ExampleStoreTwo], 10_000)
       end
     end
 
@@ -143,8 +156,8 @@ defmodule MnesiacTest do
 
       assert true = Cluster.call(node_a, Enum, :member?, [tables_a, :schema])
       assert true = Cluster.call(node_b, Enum, :member?, [tables_b, :schema])
-      assert true = Cluster.call(node_a, Enum, :member?, [tables_a, Mnesiac.Support.ExampleStore])
-      assert true = Cluster.call(node_b, Enum, :member?, [tables_b, Mnesiac.Support.ExampleStore])
+      assert true = Cluster.call(node_a, Enum, :member?, [tables_a, Mnesiac.Support.ExampleStoreOne])
+      assert true = Cluster.call(node_b, Enum, :member?, [tables_b, Mnesiac.Support.ExampleStoreOne])
       assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
       assert :opt_disc = Cluster.call(node_b, :mnesia, :system_info, [:schema_location])
     end
@@ -152,15 +165,15 @@ defmodule MnesiacTest do
     test "cluster status", %{cluster: cluster} do
       [node_a, node_b] = Cluster.members(cluster)
 
-      assert [{:running_nodes, [node_a, node_b]}] = Cluster.call(node_a, Mnesiac, :cluster_status, [])
-      assert [{:running_nodes, [node_a, node_b]}] = Cluster.call(node_b, Mnesiac, :cluster_status, [])
+      assert  {:ok, [running_nodes: [node_a, node_b]]} = Cluster.call(node_a, Mnesiac, :cluster_status, [])
+      assert  {:ok, [running_nodes: [node_a, node_b]]} = Cluster.call(node_b, Mnesiac, :cluster_status, [])
     end
 
     test "running nodes", %{cluster: cluster} do
       [node_a, node_b] = Cluster.members(cluster)
 
-      assert [node_a, node_b] = Cluster.call(node_a, Mnesiac, :running_nodes, [])
-      assert [node_a, node_b] = Cluster.call(node_b, Mnesiac, :running_nodes, [])
+      assert {:ok, [node_a, node_b]} = Cluster.call(node_a, Mnesiac, :running_nodes, [])
+      assert {:ok, [node_a, node_b]} = Cluster.call(node_b, Mnesiac, :running_nodes, [])
     end
 
     test "node in cluster", %{cluster: cluster} do
