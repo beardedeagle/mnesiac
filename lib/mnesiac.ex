@@ -271,7 +271,7 @@ defmodule Mnesiac do
       Keyword.merge(
         Keyword.get(config, :schema, ram_copies: [1.0]),
         migrations: [],
-        ref: :schema
+        ref: Mnesiac.Store
       )
     )
   end
@@ -304,10 +304,10 @@ defmodule Mnesiac do
 
   # TODO: fix schema
   defp copy_schema(config, cluster_node) do
-    Enum.each(config.stores, fn store -> apply(store.ref, :copy_schema, [store, cluster_node]) end)
+    apply(config.schema.ref, :copy_schema, [config, cluster_node])
   end
 
-  defp init_schema(config), do: Enum.each(config.stores, fn store -> apply(store.ref, :init_schema, [store]) end)
+  defp init_schema(config), do: apply(config.schema.ref, :init_schema, [config])
 
   defp copy_tables(config, cluster_node) do
     local_cookies = get_table_cookies()
