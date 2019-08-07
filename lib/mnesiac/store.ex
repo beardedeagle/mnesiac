@@ -50,7 +50,7 @@ defmodule Mnesiac.Store do
   For more information on the options supported here, please see mnesia's documenatation.
   ## Example
   ```elixir
-  iex(1)> store_options()
+  store_options()
   [attributes: [...], index: [:topic_id], disc_copies: [node()]]
   ```
   **Note**: Defining `:record_name` in `store_options()` will set the mnesia store name to the same.
@@ -182,13 +182,9 @@ defmodule Mnesiac.Store do
       def init_schema(config), do: copy_schema(config, node())
 
       def copy_schema(config, cluster_node) do
-        copy_type = config.schema
-
-        case :mnesia.change_table_copy_type(:schema, cluster_node, copy_type) do
-          {:atomic, :ok} -> :ok
-          {:aborted, {:already_exists, :schema, _, _}} -> :ok
-          {:aborted, reason} -> {:error, reason}
-        end
+        Enum.each(config.schema, fn {type, nodes} ->
+          enum_schema(type, cluster_node, nodes)
+        end)
       end
 
       def init_store(config) do
@@ -218,6 +214,18 @@ defmodule Mnesiac.Store do
         Logger.info("[mnesiac:#{node()}] #{inspect(store_name)}: records found on both sides, copy aborted.")
 
         :ok
+      end
+
+      defp enum_schema(type, cluster_node, nodes) do
+        Enum.each(nodes, fn node ->
+          if node() == node do
+            case :mnesia.change_table_copy_type(:schema, cluster_node, type) do
+              {:atomic, :ok} -> :ok
+              {:aborted, {:already_exists, :schema, _, _}} -> :ok
+              {:aborted, reason} -> {:error, reason}
+            end
+          end
+        end)
       end
 
       defoverridable Mnesiac.Store

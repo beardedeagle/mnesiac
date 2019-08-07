@@ -43,8 +43,13 @@ defmodule Mnesiac.MixProject do
         formatters: ["html", "epub"]
       ],
       aliases: [
-        check: ["format", "compile --warning-as-errors --force", "credo --strict --all", "inch"],
-        "purge.db": &purge_db/1
+        check: [
+          "format --check-formatted --dry-run",
+          "compile --warning-as-errors --force",
+          "credo --strict --all",
+          "inch"
+        ],
+        "db.purge": &purge_db/1
       ],
       name: "Mnesiac",
       source_url: "https://github.com/beardedeagle/mnesiac",

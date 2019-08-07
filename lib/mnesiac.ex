@@ -36,7 +36,7 @@ defmodule Mnesiac do
       disc_only_copies: [],
       migrations: [],
       ram_copies: [1.0],
-      ref: :schema
+      ref: Mnesiac.Store
     },
     store_load_timeout: 600000,
     stores: [
@@ -75,7 +75,7 @@ defmodule Mnesiac do
   Initialize Mnesia. Filters out cluster nodes not explicitly passed in.
   ## Example
   ```elixir
-  iex(1)> config = [
+  config = [
     schema: [
       disc_copies: [node3, node4, node6],
       ram_copies: [node10, node11]
@@ -85,7 +85,7 @@ defmodule Mnesiac do
     ],
     store_load_timeout: 600_000
   ]
-  iex(2)> Mnesiac.init_mnesia([cluster: [node()], config: config])
+  Mnesiac.init_mnesia([cluster: [node()], config: config])
   :ok
   ```
   """
@@ -102,7 +102,7 @@ defmodule Mnesiac do
   @doc """
   Validate configuration being passed in to Mnesiac will build to a proper Mneisac configuration struct.
   ```elixir
-  iex(1)> Mnesiac.validate_config(config)
+  Mnesiac.validate_config(config)
   {:ok,
     %Mnesiac{
       schema: %Mnesiac.Store{
@@ -111,7 +111,7 @@ defmodule Mnesiac do
         disc_only_copies: [],
         migrations: [],
         ram_copies: [:n10@local, :n11@local],
-        ref: :schema
+        ref: Mnesiac.Store
       },
       store_load_timeout: 600000,
       stores: [
@@ -145,7 +145,7 @@ defmodule Mnesiac do
   Get the cluster status.
   ## Example
   ```elixir
-  iex(1)> Mnesiac.cluster_status()
+  Mnesiac.cluster_status()
   {:ok, [running_nodes: [:nonode@nohost]]}
   ```
   """
@@ -166,7 +166,7 @@ defmodule Mnesiac do
   Returns a list of running Mnesia cluster nodes.
   ## Example
   ```elixir
-  iex(1)> Mnesiac.running_nodes()
+  Mnesiac.running_nodes()
   {:ok, [:nonode@nohost]}
   ```
   """
@@ -177,7 +177,7 @@ defmodule Mnesiac do
   Is this node in the Mnesia cluster?
   ## Example
   ```elixir
-  iex(1)> Mnesiac.node_in_cluster?(node())
+  Mnesiac.node_in_cluster?(node())
   true
   ```
   """
@@ -188,7 +188,7 @@ defmodule Mnesiac do
   Is this node running Mnesia?
   ## Example
   ```elixir
-  iex(1)> Mnesiac.running_db_node?(node())
+  Mnesiac.running_db_node?(node())
   true
   ```
   """
@@ -302,7 +302,6 @@ defmodule Mnesiac do
     end
   end
 
-  # TODO: fix schema
   defp copy_schema(config, cluster_node) do
     apply(config.schema.ref, :copy_schema, [config, cluster_node])
   end
