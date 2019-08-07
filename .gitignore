@@ -13,7 +13,7 @@ cover
 deps
 doc
 erl_crash.dump
-Mnesia.nonode@nohost
+Mnesia.*@*
 mnesiac-*.tar
 mnesiac.iml
 MnesiaCore.*

@@ -40,16 +40,6 @@ defmodule MnesiacTest do
       :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStoreOne], 5000)
     end
 
-    test "tables exist", %{cluster: cluster} do
-      [node_a] = Cluster.members(cluster)
-
-      tables = Cluster.call(node_a, :mnesia, :system_info, [:tables])
-
-      assert true = Cluster.call(node_a, Enum, :member?, [tables, :schema])
-      assert true = Cluster.call(node_a, Enum, :member?, [tables, Mnesiac.Support.ExampleStoreOne])
-      assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
-    end
-
     test "cluster status", %{cluster: cluster} do
       [node_a] = Cluster.members(cluster)
 
@@ -73,6 +63,16 @@ defmodule MnesiacTest do
 
       assert true = Cluster.call(node_a, Mnesiac, :running_db_node?, [node_a])
     end
+
+    test "tables exist", %{cluster: cluster} do
+      [node_a] = Cluster.members(cluster)
+
+      tables = Cluster.call(node_a, :mnesia, :system_info, [:tables])
+
+      assert true = Cluster.call(node_a, Enum, :member?, [tables, :schema])
+      assert true = Cluster.call(node_a, Enum, :member?, [tables, ExampleStoreOne])
+      assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
+    end
   end
 
   scenario "single node test with mnesiac supervisor/2", @single_named_opts do
@@ -87,16 +87,6 @@ defmodule MnesiacTest do
         Mnesiac.Supervisor.start_link([[cluster: [node()], config: config], [name: Mnesiac.SupervisorSingleTest]])
 
       :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStoreOne], 5000)
-    end
-
-    test "tables exist", %{cluster: cluster} do
-      [node_a] = Cluster.members(cluster)
-
-      tables = Cluster.call(node_a, :mnesia, :system_info, [:tables])
-
-      assert true = Cluster.call(node_a, Enum, :member?, [tables, :schema])
-      assert true = Cluster.call(node_a, Enum, :member?, [tables, Mnesiac.Support.ExampleStoreOne])
-      assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
     end
 
     test "cluster status", %{cluster: cluster} do
@@ -122,6 +112,16 @@ defmodule MnesiacTest do
 
       assert true = Cluster.call(node_a, Mnesiac, :running_db_node?, [node_a])
     end
+
+    test "tables exist", %{cluster: cluster} do
+      [node_a] = Cluster.members(cluster)
+
+      tables = Cluster.call(node_a, :mnesia, :system_info, [:tables])
+
+      assert true = Cluster.call(node_a, Enum, :member?, [tables, :schema])
+      assert true = Cluster.call(node_a, Enum, :member?, [tables, ExampleStoreOne])
+      assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
+    end
   end
 
   scenario "distributed test", @distributed_opts do
@@ -146,20 +146,6 @@ defmodule MnesiacTest do
       else
         :ok = :mnesia.wait_for_tables([Mnesiac.Support.ExampleStoreOne, Mnesiac.Support.ExampleStoreTwo], 10_000)
       end
-    end
-
-    test "tables exist", %{cluster: cluster} do
-      [node_a, node_b] = Cluster.members(cluster)
-
-      tables_a = Cluster.call(node_a, :mnesia, :system_info, [:tables])
-      tables_b = Cluster.call(node_b, :mnesia, :system_info, [:tables])
-
-      assert true = Cluster.call(node_a, Enum, :member?, [tables_a, :schema])
-      assert true = Cluster.call(node_b, Enum, :member?, [tables_b, :schema])
-      assert true = Cluster.call(node_a, Enum, :member?, [tables_a, Mnesiac.Support.ExampleStoreOne])
-      assert true = Cluster.call(node_b, Enum, :member?, [tables_b, Mnesiac.Support.ExampleStoreOne])
-      assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
-      assert :opt_disc = Cluster.call(node_b, :mnesia, :system_info, [:schema_location])
     end
 
     test "cluster status", %{cluster: cluster} do
@@ -188,6 +174,22 @@ defmodule MnesiacTest do
 
       assert true = Cluster.call(node_a, Mnesiac, :running_db_node?, [node_b])
       assert true = Cluster.call(node_b, Mnesiac, :running_db_node?, [node_a])
+    end
+
+    test "tables exist", %{cluster: cluster} do
+      [node_a, node_b] = Cluster.members(cluster)
+
+      tables_a = Cluster.call(node_a, :mnesia, :system_info, [:tables])
+      tables_b = Cluster.call(node_b, :mnesia, :system_info, [:tables])
+
+      assert true = Cluster.call(node_a, Enum, :member?, [tables_a, :schema])
+      assert true = Cluster.call(node_b, Enum, :member?, [tables_b, :schema])
+      assert true = Cluster.call(node_a, Enum, :member?, [tables_a, ExampleStoreOne])
+      assert true = Cluster.call(node_a, Enum, :member?, [tables_a, ExampleStoreTwo])
+      assert true = Cluster.call(node_b, Enum, :member?, [tables_b, ExampleStoreOne])
+      assert true = Cluster.call(node_b, Enum, :member?, [tables_b, ExampleStoreTwo])
+      assert :opt_disc = Cluster.call(node_a, :mnesia, :system_info, [:schema_location])
+      assert :opt_disc = Cluster.call(node_b, :mnesia, :system_info, [:schema_location])
     end
   end
 end
