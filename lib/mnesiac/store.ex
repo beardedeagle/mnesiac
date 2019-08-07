@@ -179,7 +179,9 @@ defmodule Mnesiac.Store do
 
   def copy_schema(config, cluster_node) do
     Enum.each(Map.from_struct(config.schema), fn {type, nodes} ->
-      enum_schema(type, cluster_node, nodes)
+      if type in [:ram_copies, :disc_copies, :disc_only_copies] do
+        enum_schema(type, cluster_node, nodes)
+      end
     end)
   end
 
@@ -213,7 +215,7 @@ defmodule Mnesiac.Store do
   end
 
   defp enum_schema(type, cluster_node, nodes) do
-    if node() in nodes do
+    if Enum.member?(nodes, node()) do
       case :mnesia.change_table_copy_type(:schema, cluster_node, type) do
         {:atomic, :ok} -> :ok
         {:aborted, {:already_exists, :schema, _, _}} -> :ok
@@ -225,6 +227,17 @@ defmodule Mnesiac.Store do
   defmacro __using__(_) do
     quote do
       @behaviour Mnesiac.Store
+
+      defdelegate init_schema(config), to: Mnesiac.Store
+      defdelegate copy_schema(config, cluster_node), to: Mnesiac.Store
+      defdelegate init_store(config), to: Mnesiac.Store
+      defdelegate copy_store(config), to: Mnesiac.Store
+      defdelegate init_migration(config), to: Mnesiac.Store
+      defdelegate rollback_migration(config), to: Mnesiac.Store
+      defdelegate refresh_cluster(config), to: Mnesiac.Store
+      defdelegate backup(config), to: Mnesiac.Store
+      defdelegate resolve_conflict(config, cluster_node), to: Mnesiac.Store
+
       defoverridable Mnesiac.Store
     end
   end

@@ -165,8 +165,8 @@ defmodule MnesiacTest do
     test "cluster status", %{cluster: cluster} do
       [node_a, node_b] = Cluster.members(cluster)
 
-      assert  {:ok, [running_nodes: [node_a, node_b]]} = Cluster.call(node_a, Mnesiac, :cluster_status, [])
-      assert  {:ok, [running_nodes: [node_a, node_b]]} = Cluster.call(node_b, Mnesiac, :cluster_status, [])
+      assert {:ok, [running_nodes: [node_a, node_b]]} = Cluster.call(node_a, Mnesiac, :cluster_status, [])
+      assert {:ok, [running_nodes: [node_a, node_b]]} = Cluster.call(node_b, Mnesiac, :cluster_status, [])
     end
 
     test "running nodes", %{cluster: cluster} do
