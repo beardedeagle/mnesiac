@@ -175,8 +175,16 @@ defmodule Mnesiac.Store do
                       backup: 1,
                       resolve_conflict: 2
 
+  @doc """
+  Called by mnesiac to initialize mnesia's schema.
+  """
+  @spec init_schema(Store.t()) :: :ok
   def init_schema(config), do: copy_schema(config, node())
 
+  @doc """
+  Called by mnesiac to copy mnesia's schema.
+  """
+  @spec copy_schema(Store.t(), node()) :: :ok
   def copy_schema(config, cluster_node) do
     Enum.each(Map.from_struct(config.schema), fn {type, nodes} ->
       if type in [:ram_copies, :disc_copies, :disc_only_copies] do
@@ -185,10 +193,18 @@ defmodule Mnesiac.Store do
     end)
   end
 
+  @doc """
+  Called by mnesiac either when it has no existing records to use or copy and will initialize a store.
+  """
+  @spec init_store(Store.t()) :: {:aborted, term()} | {:atomic, :ok}
   def init_store(config) do
     :mnesia.create_table(Keyword.get(config.ref.store_options(), :record_name, __MODULE__), config.ref.store_options())
   end
 
+  @doc """
+  Called by mnesiac when it joins a mnesia cluster and records for this store is found on the remote node being connected to.
+  """
+  @spec copy_store(Store.t()) :: [term()]
   def copy_store(config) do
     for type <- [:ram_copies, :disc_copies, :disc_only_copies] do
       value = Keyword.get(config.ref.store_options(), type, [])
@@ -199,14 +215,35 @@ defmodule Mnesiac.Store do
     end
   end
 
+  @doc """
+  Called by mnesiac when migrations are to be performed.
+  """
+  @spec init_migration(Store.t()) :: :ok
   def init_migration(_config), do: :ok
 
+  @doc """
+  Called by mnesiac when migrations are to be rolled back.
+  """
+  @spec rollback_migration(Store.t()) :: :ok
   def rollback_migration(_config), do: :ok
 
+  @doc """
+  Called by user when the cluster needs to be refreshed.
+  """
+  @spec refresh_cluster(Store.t()) :: :ok
   def refresh_cluster(_config), do: :ok
 
+  @doc """
+  Called by user when the cluster needs to be refreshed.
+  """
+  @spec backup(Store.t()) :: :ok
   def backup(_config), do: :ok
 
+  @doc ~S"""
+  Called by mnesiac when it has detected records for a store on both the local and remote nodes it is connecting to.
+  **Note**: The default implementation is to do nothing.
+  """
+  @spec resolve_conflict(Store.t(), node()) :: :ok
   def resolve_conflict(config, _cluster_node) do
     store_name = Keyword.get(config.ref.store_options(), :record_name, __MODULE__)
     Logger.info("[mnesiac:#{node()}] #{inspect(store_name)}: records found on both sides, copy aborted.")
