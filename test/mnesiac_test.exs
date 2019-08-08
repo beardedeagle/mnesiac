@@ -141,11 +141,12 @@ defmodule MnesiacTest do
         store_load_timeout: 600_000
       ]
 
-      {:ok, _pid} = Mnesiac.Supervisor.start_link(cluster: [:"test03@127.0.0.1", :"test04@127.0.0.1"], config: config)
-
       if node() == :"test03@127.0.0.1" do
+        {:ok, _pid} = Mnesiac.Supervisor.start_link(cluster: [:"test03@127.0.0.1", :"test04@127.0.0.1"], config: config)
         :ok = :mnesia.wait_for_tables([ExampleStoreOne, ExampleStoreTwo], 5000)
       else
+        Process.sleep(5000)
+        {:ok, _pid} = Mnesiac.Supervisor.start_link(cluster: [:"test03@127.0.0.1", :"test04@127.0.0.1"], config: config)
         :ok = :mnesia.wait_for_tables([ExampleStoreOne, ExampleStoreTwo], 10_000)
       end
     end
