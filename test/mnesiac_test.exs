@@ -4,18 +4,24 @@ defmodule MnesiacTest do
 
   @single_unnamed_opts [
     boot_timeout: 10_000,
+    capture_log: true,
+    stdout: :standard_error,
     config: [mnesia: [dir: to_charlist(Path.join(File.cwd!(), "test01"))]],
     nodes: [[name: :"test01@127.0.0.1"]]
   ]
 
   @single_named_opts [
     boot_timeout: 10_000,
+    capture_log: true,
+    stdout: :standard_error,
     config: [mnesia: [dir: to_charlist(Path.join(File.cwd!(), "test02"))]],
     nodes: [[name: :"test02@127.0.0.1"]]
   ]
 
   @distributed_opts [
     boot_timeout: 10_000,
+    capture_log: true,
+    stdout: :standard_error,
     nodes: [
       [
         name: :"test03@127.0.0.1",
