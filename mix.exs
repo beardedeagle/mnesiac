@@ -6,7 +6,7 @@ defmodule Mnesiac.MixProject do
   def project do
     [
       app: :mnesiac,
-      version: "0.3.3",
+      version: "0.4.0",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: [tool: ExCoveralls],
@@ -31,7 +31,7 @@ defmodule Mnesiac.MixProject do
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       package: [
-        description: "Autoclustering for mnesia made easy!",
+        description: "Auto clustering for Mnesia made easy!",
         files: ["lib", ".formatter.exs", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md"],
         maintainers: ["beardedeagle"],
         licenses: ["MIT"],
@@ -43,8 +43,13 @@ defmodule Mnesiac.MixProject do
         formatters: ["html", "epub"]
       ],
       aliases: [
-        check: ["format", "compile --force", "credo --strict --all", "inch"],
-        "purge.db": &purge_db/1
+        check: [
+          "format --check-formatted --dry-run",
+          "compile --warning-as-errors --force",
+          "credo --strict --all",
+          "inch"
+        ],
+        "db.purge": &purge_db/1
       ],
       name: "Mnesiac",
       source_url: "https://github.com/beardedeagle/mnesiac",
@@ -63,12 +68,12 @@ defmodule Mnesiac.MixProject do
 
   defp deps do
     [
-      {:libcluster, "~> 3.0", optional: true},
-      {:credo, "~> 1.0", only: [:dev], runtime: false},
+      {:libcluster, "~> 3.1", optional: true},
+      {:credo, "~> 1.1", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0.0-rc", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.19", only: [:dev], runtime: false},
-      {:ex_unit_clustered_case, "~> 0.3", only: [:dev, :test]},
-      {:excoveralls, "~> 0.10", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.21", only: [:dev], runtime: false},
+      {:ex_unit_clustered_case, "~> 0.4", only: [:dev, :test]},
+      {:excoveralls, "~> 0.11", only: [:dev, :test], runtime: false},
       {:inch_ex, "~> 2.0", only: [:dev], runtime: false}
     ]
   end

@@ -2,11 +2,13 @@
 
 [![Build Status](https://travis-ci.org/beardedeagle/mnesiac.svg?branch=master)](https://travis-ci.org/beardedeagle/mnesiac) [![codecov](https://codecov.io/gh/beardedeagle/mnesiac/branch/master/graph/badge.svg)](https://codecov.io/gh/beardedeagle/mnesiac) [![Hex.pm](http://img.shields.io/hexpm/v/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac) [![Hex.pm downloads](https://img.shields.io/hexpm/dt/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac)
 
-Mnesia autoclustering made easy!
+Mnesia auto clustering made easy!
 
 Docs can be found at [https://hexdocs.pm/mnesiac](https://hexdocs.pm/mnesiac).
 
-**_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the api can, and may, change at any time. Please ensure you review the docs and changelog prior to updating.
+**_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the API can, and may, change at any time. Please ensure you review the docs and changelog prior to updating.
+
+**_NOTICE:_** Mnesiac allows a significant amount of freedom with how it behaves. This allows you to customize Mnesiac to suit your needs. However, this also allows for a fair amount of foot gunning. Please ensure you've done your due diligence when using this library, or Mnesia itself for that matter. It isn't a silver bullet, and it shouldn't be treated as one.
 
 ## Installation
 
@@ -15,40 +17,67 @@ Simply add `mnesiac` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:mnesiac, "~> 0.3"}
+    {:mnesiac, "~> 0.4"}
   ]
 end
 ```
 
-Edit your app's config.exs to add the list of mnesia stores:
+Then add `mnesiac` to your supervision tree, passing in the cluster and the Mnesiac configuration:
 
-```elixir
-config :mnesiac,
-  stores: [Mnesiac.ExampleStore, ...],
-  schema_type: :disc_copies, # defaults to :ram_copies
-  table_load_timeout: 600_000 # milliseconds, default is 600_000
-```
+- Supported types:
+  - ram_copies.
+  - disc_copies.
+  - disc_only_copies.
 
-Then add `mnesiac` to your supervision tree:
+- Supported replication types:
+  - **_N_** nodes in Mnesia cluster (represented as positive integers).
+  - **_N%_** of nodes in Mnesia cluster (represented as `N.NN` floats, where `1.00` would be 100%).
+  - **_SPECIFIC_** nodes in Mnesia cluster (valid node names only).
 
-- With `libcluster` using the `Cluster.Strategy.Epmd` strategy:
+- Migrations:
+  - Only supports MFA tuples.
+  - Fires only in the presence of `migrations` key being defined. If present in `schema`, it will be silently ignored.
+  - `rollback_migration/1` needs to be called manually or it could be called from `init_migration/1` in a custom implementation.
+
+- **_EXAMPLE:_** With `libcluster` using the `Cluster.Strategy.Epmd` strategy:
 
 ```elixir
   ...
 
     topology = Application.get_env(:libcluster, :topologies)
-    hosts = topology[:myapp][:config][:hosts]
+    cluster = topology[:myapp][:config][:hosts]
+    config = [
+      schema: [ # default is :ram_copies, everywhere
+        disc_copies: [:n3@local, :n4@local, :n6@local],
+        ram_copies: [:n10@local, :n11@local]
+      ],
+      stores: [
+        [ # default is :ram_copies, everywhere
+          ref: Mnesiac.ExampleStore,
+          disc_copies: [:n3@local, :n4@local, :n6@local],
+          ram_copies: [:n10@local, :n11@local],
+          blacklist: [:n10@local, :n11@local]
+        ],
+        [
+          ref: Mnesiac.ExampleStoreTwo,
+          disc_copies: [:n10@local, :n11@local],
+          ram_copies: [:n3@local, :n4@local, :n6@local],
+          migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
+        ]
+      ],
+        store_load_timeout: 600_000
+    ]
 
     children = [
       {Cluster.Supervisor, [topology, [name: MyApp.ClusterSupervisor]]},
-      {Mnesiac.Supervisor, [hosts, [name: MyApp.MnesiacSupervisor]]},
+      {Mnesiac.Supervisor, [[cluster: cluster, config: config], [name: MyApp.MnesiacSupervisor]]},
       ...
     ]
 
   ...
 ```
 
-- Without `libcluster`:
+- **_EXAMPLE:_** Without `libcluster`:
 
 ```elixir
   ...
@@ -57,7 +86,30 @@ Then add `mnesiac` to your supervision tree:
       {
         Mnesiac.Supervisor,
         [
-          [:"test01@127.0.0.1", :"test02@127.0.0.1"],
+          [
+            cluster: [:n3@local, :n4@local],
+            config: [
+              schema: [ # default is :ram_copies, everywhere
+                disc_copies: [:n3@local, :n4@local, :n6@local],
+                ram_copies: [:n10@local, :n11@local]
+              ],
+              stores: [
+                [ # default is :ram_copies, everywhere
+                  ref: Mnesiac.ExampleStore,
+                  disc_copies: [:n3@local, :n4@local, :n6@local],
+                  ram_copies: [:n10@local, :n11@local],
+                  blacklist: [:n10@local, :n11@local]
+                ],
+                [
+                  ref: Mnesiac.ExampleStoreTwo,
+                  disc_copies: [:n10@local, :n11@local],
+                  ram_copies: [:n3@local, :n4@local, :n6@local],
+                  migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
+                ]
+              ],
+                store_load_timeout: 600_000
+            ]
+          ],
           [name: MyApp.MnesiacSupervisor]
         ]
       },
@@ -69,24 +121,37 @@ Then add `mnesiac` to your supervision tree:
 
 ## Usage
 
-### Table creation
+### Store creation
 
-Create a table store, `use Mnesiac.Store`, and add it to your app's config.exs. 
+To create a store, `use Mnesiac.Store`, and ensure it's added to the config for Mnesiac you're passing in. 
 
-All stores *MUST* implement its own `store_options/0`, which returns a keyword list of table options.
+All stores **_MUST_** implement its own `store_options/0`, which returns a keyword list of store options.
 
-There are three optional callbacks which can be implemented:
+There are nine optional callbacks which can be implemented:
 
-- `init_store/0`, which allows users to implement custom table initialisation logic.
-- `copy_store/0`, which allows users to implement a custom call to copy a store.
-- `resolve_conflict/1`, which allows a user to implement logic when table data is found on both the remote node and local node when connecting to a cluster. This currently has no default implementation.
+- `init_schema/1`, which allows users to implement custom schema initialization logic. Triggered by Mnesiac.
+- `copy_schema/2`, which allows users to implement a custom call to copy schema. Triggered by Mnesiac.
+- `init_store/1`, which allows users to implement custom store initialization logic. Triggered by Mnesiac.
+- `copy_store/1`, which allows users to implement a custom call to copy a store. Triggered by Mnesiac.
+- `init_migration/1`, which allows users to implement custom migration logic. Triggered by Mnesiac. Default is to do nothing.
+- `rollback_migration/1`, which allows users to implement custom migration rollback logic. Triggered by user. Default is to do nothing.
+- `refresh_cluster/1`, which allows users to implement custom logic to refresh Mnesia cluster. Triggered by user. Default is to do nothing.
+- `backup/1`, which allows users to implement custom logic to back up Mnesia stores. Triggered by user. Default is to do nothing.
+- `resolve_conflict/2`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node. Triggered by Mnesiac. Default is to do nothing.
+
+**_MINIMAL EXAMPLE:_**:
 
 ```elixir
 defmodule MyApp.ExampleStore do
-  @moduledoc false
-  require Record
+  @moduledoc """
+  Provides the structure of ExampleStore records for a minimal example of Mnesiac.
+  """
   use Mnesiac.Store
+  import Record, only: [defrecord: 3]
 
+  @doc """
+  Record definition for ExampleStore example record.
+  """
   Record.defrecord(
     :example,
     __MODULE__,
@@ -95,6 +160,9 @@ defmodule MyApp.ExampleStore do
     event: nil
   )
 
+  @typedoc """
+  ExampleStore example record field type definitions.
+  """
   @type example ::
           record(
             :example,
@@ -106,6 +174,7 @@ defmodule MyApp.ExampleStore do
   @impl true
   def store_options,
     do: [
+      record_name: __MODULE__,
       attributes: example() |> example() |> Keyword.keys(),
       index: [:topic_id],
       ram_copies: [node()]
@@ -115,15 +184,15 @@ end
 
 ### Clustering
 
-If you are using `libcluster` or another clustering library just ensure that clustering library starts earlier than `mnesiac`. That's all, you don't need to do anything else.
+If you are using `libcluster` or another clustering library, ensure that the clustering library starts before `mnesiac`. That's all, you don't need to do anything else.
 
-If you are not using `libcluster` or similar clustering library then:
+If you are not using `libcluster` or similar clustering libraries then:
 
-- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia()` function on the *new node*. This will initialize and copy table contents from the other online nodes.
+- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia/1` function on the **_new node_**. This will initialize and copy the store contents from the other online nodes in the Mnesia cluster.
 
 ## Development
 
-Ensure you have the proper language versions installed. To do this, an `asdf` tools file is provided. Run the following:
+Ensure you have the proper language versions installed. To do this, an `asdf` tools file has been provided. Run the following:
 
 ```shell
 git clone https://github.com/beardedeagle/mnesiac.git
@@ -134,17 +203,24 @@ mix local.rebar --force
 mix deps.get --force
 mix deps.compile --force
 mix compile --force
-mix check
 ```
 
 **_NOTICE:_** You can find the `asdf` tool [here][1].
 
-## Testing
+## Linting and static analysis
 
-Before you run any tests, ensure that you have cleaned up mnesia:
+Mnesiac provides a single command for linting and static analysis:
 
 ```shell
-mix purge.db
+mix check
+```
+
+## Testing
+
+Before you run any tests, ensure that you have cleaned up Mnesia:
+
+```shell
+mix db.purge
 ```
 
 Test results and coverage reports are generated by running the following:

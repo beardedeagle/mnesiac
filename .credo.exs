@@ -3,9 +3,10 @@
     %{
       name: "default",
       files: %{
-        included: ["lib/", "src/", "test/", "web/", "apps/", "config/"],
+        included: ["lib/", "src/", "test/", "web/", "apps/"],
         excluded: [~r"/_build/", ~r"/deps/", ~r"/node_modules/"]
       },
+      plugins: [],
       requires: [],
       strict: true,
       color: true,
@@ -36,6 +37,7 @@
         {Credo.Check.Readability.StringSigils, []},
         {Credo.Check.Readability.TrailingBlankLine, []},
         {Credo.Check.Readability.TrailingWhiteSpace, []},
+        {Credo.Check.Readability.UnnecessaryAliasExpansion, false},
         {Credo.Check.Readability.VariableNames, []},
         {Credo.Check.Refactor.CondStatements, []},
         {Credo.Check.Refactor.CyclomaticComplexity, []},
@@ -46,12 +48,8 @@
         {Credo.Check.Refactor.NegatedConditionsInUnless, []},
         {Credo.Check.Refactor.NegatedConditionsWithElse, []},
         {Credo.Check.Refactor.Nesting, []},
-        {Credo.Check.Refactor.PipeChainStart,
-         [
-           excluded_argument_types: [:atom, :binary, :fn, :keyword, :number],
-           excluded_functions: []
-         ]},
         {Credo.Check.Refactor.UnlessWithElse, []},
+        {Credo.Check.Refactor.WithClauses, []},
         {Credo.Check.Warning.BoolOperationOnSameValues, []},
         {Credo.Check.Warning.ExpensiveEmptyEnumCheck, []},
         {Credo.Check.Warning.IExPry, []},
@@ -69,12 +67,16 @@
         {Credo.Check.Warning.UnusedStringOperation, []},
         {Credo.Check.Warning.UnusedTupleOperation, []},
         {Credo.Check.Consistency.MultiAliasImportRequireUse, false},
+        {Credo.Check.Consistency.UnusedVariableNames, false},
         {Credo.Check.Design.DuplicatedCode, false},
+        {Credo.Check.Readability.MultiAlias, false},
         {Credo.Check.Readability.Specs, false},
+        {Credo.Check.Readability.SinglePipe, false},
         {Credo.Check.Refactor.ABCSize, false},
         {Credo.Check.Refactor.AppendSingleItem, false},
         {Credo.Check.Refactor.DoubleBooleanNegation, false},
         {Credo.Check.Refactor.ModuleDependencies, false},
+        {Credo.Check.Refactor.PipeChainStart, false},
         {Credo.Check.Refactor.VariableRebinding, false},
         {Credo.Check.Warning.MapGetUnsafePass, false},
         {Credo.Check.Warning.UnsafeToAtom, false}
