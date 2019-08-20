@@ -188,7 +188,7 @@ defmodule Mnesiac.Store do
   def copy_schema(config, cluster_node) do
     Enum.each(Map.from_struct(config.schema), fn {type, nodes} ->
       if type in [:ram_copies, :disc_copies, :disc_only_copies] do
-        enum_schema(type, cluster_node, nodes)
+        maybe_apply_schema(type, cluster_node, nodes)
       end
     end)
   end
@@ -251,7 +251,7 @@ defmodule Mnesiac.Store do
     :ok
   end
 
-  defp enum_schema(type, cluster_node, nodes) do
+  defp maybe_apply_schema(type, cluster_node, nodes) do
     if Enum.member?(nodes, node()) do
       case :mnesia.change_table_copy_type(:schema, cluster_node, type) do
         {:atomic, :ok} -> :ok

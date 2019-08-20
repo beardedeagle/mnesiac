@@ -388,8 +388,8 @@ defmodule Mnesiac do
   defp get_table_cookies(node \\ node()) do
     tables = :rpc.call(node, :mnesia, :system_info, [:tables])
 
-    Enum.reduce(tables, %{}, fn t, acc ->
-      Map.put(acc, t, :rpc.call(node, :mnesia, :table_info, [t, :cookie]))
+    Enum.reduce(tables, %{}, fn table, acc ->
+      Map.put(acc, table, :rpc.call(node, :mnesia, :table_info, [table, :cookie]))
     end)
   end
 end
