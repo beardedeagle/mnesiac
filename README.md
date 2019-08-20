@@ -2,11 +2,13 @@
 
 [![Build Status](https://travis-ci.org/beardedeagle/mnesiac.svg?branch=master)](https://travis-ci.org/beardedeagle/mnesiac) [![codecov](https://codecov.io/gh/beardedeagle/mnesiac/branch/master/graph/badge.svg)](https://codecov.io/gh/beardedeagle/mnesiac) [![Hex.pm](http://img.shields.io/hexpm/v/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac) [![Hex.pm downloads](https://img.shields.io/hexpm/dt/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac)
 
-Mnesia autoclustering made easy!
+Mnesia auto clustering made easy!
 
 Docs can be found at [https://hexdocs.pm/mnesiac](https://hexdocs.pm/mnesiac).
 
-**_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the api can, and may, change at any time. Please ensure you review the docs and changelog prior to updating.
+**_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the API can, and may, change at any time. Please ensure you review the docs and changelog prior to updating.
+
+**_NOTICE:_** Mnesiac allows a significant amount of freedom with how it behaves. This allows you to customize Mnesiac to suit your needs. However, this also allows for a fair amount of foot gunning. Please ensure you've done your due diligence when using this library, or Mnesia itself for that matter. It isn't a silver bullet, and it shouldn't be treated as one.
 
 ## Installation
 
@@ -20,7 +22,7 @@ def deps do
 end
 ```
 
-Edit your app's config.exs to add the list of mnesia stores:
+Edit your app's config.exs to add the list of Mnesia stores:
 
 ```elixir
 config :mnesiac,
@@ -31,7 +33,7 @@ config :mnesiac,
 
 Then add `mnesiac` to your supervision tree:
 
-- With `libcluster` using the `Cluster.Strategy.Epmd` strategy:
+- **_EXAMPLE:_** With `libcluster` using the `Cluster.Strategy.Epmd` strategy:
 
 ```elixir
   ...
@@ -48,7 +50,7 @@ Then add `mnesiac` to your supervision tree:
   ...
 ```
 
-- Without `libcluster`:
+- **_EXAMPLE:_** Without `libcluster`:
 
 ```elixir
   ...
@@ -71,22 +73,29 @@ Then add `mnesiac` to your supervision tree:
 
 ### Table creation
 
-Create a table store, `use Mnesiac.Store`, and add it to your app's config.exs. 
+Create a table store, `use Mnesiac.Store`, and add it to your app's config.exs.
 
-All stores *MUST* implement its own `store_options/0`, which returns a keyword list of table options.
+All stores **_MUST_** implement its own `store_options/0`, which returns a keyword list of store options.
 
 There are three optional callbacks which can be implemented:
 
-- `init_store/0`, which allows users to implement custom table initialisation logic.
-- `copy_store/0`, which allows users to implement a custom call to copy a store.
-- `resolve_conflict/1`, which allows a user to implement logic when table data is found on both the remote node and local node when connecting to a cluster. This currently has no default implementation.
+- `init_store/0`, which allows users to implement custom store initialization logic. Triggered by Mnesiac.
+- `copy_store/0`, which allows users to implement a custom call to copy a store. Triggered by Mnesiac.
+- `resolve_conflict/1`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node. Triggered by Mnesiac. Default is to do nothing.
+
+**_MINIMAL EXAMPLE:_**:
 
 ```elixir
 defmodule MyApp.ExampleStore do
-  @moduledoc false
-  require Record
+  @moduledoc """
+  Provides the structure of ExampleStore records for a minimal example of Mnesiac.
+  """
   use Mnesiac.Store
+  import Record, only: [defrecord: 3]
 
+  @doc """
+  Record definition for ExampleStore example record.
+  """
   Record.defrecord(
     :example,
     __MODULE__,
@@ -95,6 +104,9 @@ defmodule MyApp.ExampleStore do
     event: nil
   )
 
+  @typedoc """
+  ExampleStore example record field type definitions.
+  """
   @type example ::
           record(
             :example,
@@ -106,6 +118,7 @@ defmodule MyApp.ExampleStore do
   @impl true
   def store_options,
     do: [
+      record_name: __MODULE__,
       attributes: example() |> example() |> Keyword.keys(),
       index: [:topic_id],
       ram_copies: [node()]
@@ -115,15 +128,15 @@ end
 
 ### Clustering
 
-If you are using `libcluster` or another clustering library just ensure that clustering library starts earlier than `mnesiac`. That's all, you don't need to do anything else.
+If you are using `libcluster` or another clustering library, ensure that the clustering library starts before `mnesiac`. That's all, you don't need to do anything else.
 
-If you are not using `libcluster` or similar clustering library then:
+If you are not using `libcluster` or similar clustering libraries then:
 
-- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia()` function on the *new node*. This will initialize and copy table contents from the other online nodes.
+- When a node joins to an erlang/elixir cluster, run the `Mnesiac.init_mnesia/1` function on the **_new node_**. This will initialize and copy the store contents from the other online nodes in the Mnesia cluster.
 
 ## Development
 
-Ensure you have the proper language versions installed. To do this, an `asdf` tools file is provided. Run the following:
+Ensure you have the proper language versions installed. To do this, an `asdf` tools file has been provided. Run the following:
 
 ```shell
 git clone https://github.com/beardedeagle/mnesiac.git
@@ -134,14 +147,13 @@ mix local.rebar --force
 mix deps.get --force
 mix deps.compile --force
 mix compile --force
-mix check
 ```
 
 **_NOTICE:_** You can find the `asdf` tool [here][1].
 
 ## Testing
 
-Before you run any tests, ensure that you have cleaned up mnesia:
+Before you run any tests, ensure that you have cleaned up Mnesia:
 
 ```shell
 mix purge.db

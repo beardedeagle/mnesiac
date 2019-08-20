@@ -3,7 +3,6 @@ _build
 .elixir_ls
 .fetch
 .idea
-.sobelow
 .sonarlint
 .vscode
 *.beam
@@ -14,7 +13,7 @@ cover
 deps
 doc
 erl_crash.dump
-Mnesia.nonode@nohost
+Mnesia.*@*
 mnesiac-*.tar
 mnesiac.iml
 MnesiaCore.*
