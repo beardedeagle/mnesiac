@@ -55,6 +55,7 @@ defmodule Mnesiac.StoreManager do
 
     Enum.each(stores(), fn data_mapper ->
       cookie = Keyword.get(data_mapper.store_options(), :record_name, data_mapper)
+
       case {local_cookies[cookie], remote_cookies[cookie]} do
         {nil, nil} ->
           apply(data_mapper, :init_store, [])
