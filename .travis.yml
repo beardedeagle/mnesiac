@@ -5,8 +5,8 @@ elixir:
   - '1.9.4'
   - '1.10.2'
 otp_release:
-  - '20.3.8.25'
-  - '21.3.8.13'
+  - '20.3.8.22'
+  - '21.3.8.1'
   - '22.2.7'
 git:
   quiet: true
@@ -18,7 +18,6 @@ cache:
     - 'deps'
     - '$PLT_DIR'
 before_script:
-  - 'kerl list installations'
   - 'mkdir -p $PLT_DIR'
   - 'mix deps.get --force'
   - 'mix deps.compile --force'
