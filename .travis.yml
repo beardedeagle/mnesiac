@@ -18,6 +18,7 @@ cache:
     - 'deps'
     - '$PLT_DIR'
 before_script:
+  - 'kerl list installations'
   - 'mkdir -p $PLT_DIR'
   - 'mix deps.get --force'
   - 'mix deps.compile --force'
