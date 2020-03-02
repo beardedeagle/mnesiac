@@ -17,7 +17,7 @@
       },
       plugins: [],
       requires: [],
-      strict: false,
+      strict: true,
       parse_timeout: 5000,
       color: true,
       checks: [
