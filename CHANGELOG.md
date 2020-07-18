@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [[0.3.7]] - 2020-07-17
+### Changed
+- Bumped OTP version.
+- Bumped Elixir version.
+- Updated Travis CI integration for new OTP and Elixir releases.
+- Updated dependencies.
+- Updated GitHub repo files.
+
 ## [[0.3.6]] - 2020-03-01
 ### Added
 - Additional GitHub repo files.
@@ -68,6 +76,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
+[0.3.7]: https://github.com/beardedeagle/mnesiac/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/beardedeagle/mnesiac/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/beardedeagle/mnesiac/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/beardedeagle/mnesiac/compare/v0.3.3...v0.3.4
