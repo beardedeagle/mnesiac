@@ -1,4 +1,5 @@
 sudo: false
+dist: bionic
 language: elixir
 elixir:
   - 1.8.2
@@ -27,6 +28,7 @@ jobs:
   - elixir: 1.10.4
     otp_release: 20.3.8.26
 before_script:
+  - kerl list installations
   - mkdir -p $PLT_DIR
   - mix deps.get --force
   - mix deps.compile --force
