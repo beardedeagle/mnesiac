@@ -22,11 +22,11 @@ cache:
 jobs:
   exclude:
   - elixir: 1.8.2
-    erlang: 23.0.2
+    otp_release: 23.0.2
   - elixir: 1.9.4
-    erlang: 23.0.2
+    otp_release: 23.0.2
   - elixir: 1.10.4
-    otp_release: 20.3.8.26
+    otp_release: 20.3.8.22
 before_script:
   - mkdir -p $PLT_DIR
   - mix deps.get --force
