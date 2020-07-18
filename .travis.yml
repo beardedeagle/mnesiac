@@ -8,7 +8,7 @@ elixir:
 otp_release:
   - 20.3.8.26
   - 21.3.8.16
-  - 22.3.4.3
+  - 22.3.4
   - 23.0.2
 git:
   quiet: true
@@ -28,7 +28,6 @@ jobs:
   - elixir: 1.10.4
     otp_release: 20.3.8.26
 before_script:
-  - kerl list installations
   - mkdir -p $PLT_DIR
   - mix deps.get --force
   - mix deps.compile --force
