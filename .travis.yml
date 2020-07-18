@@ -1,5 +1,4 @@
 sudo: false
-dist: bionic
 language: elixir
 elixir:
   - 1.8.2
@@ -7,7 +6,7 @@ elixir:
   - 1.10.4
 otp_release:
   - 20.3.8.22
-  - 21.3.8
+  - 21.3.8.1
   - 22.3.4
   - 23.0.2
 git:
