@@ -6,9 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [[0.3.8]] - 2020-09-01
 ### Changed
+- Moved `:mnesia` out of `extra_applications` into `included_applications`.
 - Bumped OTP version.
 - Updated Travis CI integration for new OTP release.
 - Updated dependencies.
+- Updated GitHub repo files.
 
 ## [[0.3.7]] - 2020-07-17
 ### Changed
