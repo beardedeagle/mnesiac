@@ -59,7 +59,8 @@ defmodule Mnesiac.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :mnesia]
+      extra_applications: [:logger, :runtime_tools],
+      included_applications: [:mnesia]
     ]
   end
 
