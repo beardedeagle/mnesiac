@@ -20,11 +20,16 @@ defmodule Mnesiac.MixProject do
       ],
       dialyzer: [
         flags: [
-          "-Wunmatched_returns",
           "-Werror_handling",
-          "-Wrace_conditions",
+          "-Wno_improper_lists",
+          "-Wno_match",
           "-Wno_opaque",
-          "-Wunderspecs"
+          "-Wno_return",
+          "-Wno_undefined_callbacks",
+          "-Wrace_conditions",
+          "-Wunderspecs",
+          "-Wunknown",
+          "-Wunmatched_returns"
         ],
         plt_add_deps: :transitive
       ],
