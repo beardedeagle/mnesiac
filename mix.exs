@@ -6,7 +6,7 @@ defmodule Mnesiac.MixProject do
   def project do
     [
       app: :mnesiac,
-      version: "0.3.8",
+      version: "0.4.0",
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: [tool: ExCoveralls],
@@ -49,7 +49,7 @@ defmodule Mnesiac.MixProject do
           "credo --strict --all",
           "inch"
         ],
-        "purge.db": &purge_db/1
+        "db.purge": &purge_db/1
       ],
       name: "Mnesiac",
       source_url: "https://github.com/beardedeagle/mnesiac",

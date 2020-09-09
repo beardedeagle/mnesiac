@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [[0.4.0]] - 2020-09-09
+### Added
+- Ability to specify how many copies of schema can exist, by type.
+- Ability to specify how many copies of a store can exist, per store by type.
+- Ability to blacklist Mnesia cluster nodes, per store.
+- `init_schema/1`, `copy_schema/2`, `init_migration/1`, `rollback_migration/1`, `refresh_cluster/1`, `backup/1` overridable callbacks in `Mnesiac.Store`.
+- Structs for explicit config and store contracts.
+- Specs for explicit library contracts.
+- Escape hatch of sorts, which allows you to override the base Mnesiac configuration struct.
+- `Mnesiac.validate_config/2` which can be used to validate the configuration being passed in to Mnesiac, possible to test override functions too.
+
+### Removed
+- Removed `Mnesiac.StoreManager` module.
+- Config directory. Configuration is now to be passed in directly.
+
+### Changed
+- `resolve_conflict/1` -> `resolve_conflict/2`, now accepts configuration.
+- Standardized terminology in library.
+- Improved Travis CI jobs.
+- Bumped OTP and Elixir version.
+- Updated dependencies.
+
+### Fixed
+- More docs cleanup.
+
 ## [[0.3.8]] - 2020-09-01
 ### Changed
 - Moved `:mnesia` out of `extra_applications` into `included_applications`.
@@ -51,7 +76,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [[0.3.2]] - 2019-02-22
 ### Fixed
-- Regression that made defining a custom table name impossible.
+- Regression that made defining a custom store name impossible.
 
 ## [[0.3.1]] - 2019-02-21
 ### Added
@@ -84,6 +109,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
+[0.4.0]: https://github.com/beardedeagle/mnesiac/compare/v0.3.8...v0.4.0
 [0.3.8]: https://github.com/beardedeagle/mnesiac/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/beardedeagle/mnesiac/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/beardedeagle/mnesiac/compare/v0.3.5...v0.3.6

@@ -17,21 +17,27 @@ Simply add `mnesiac` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:mnesiac, "~> 0.3"}
+    {:mnesiac, "~> 0.4"}
   ]
 end
 ```
 
-Edit your app's config.exs to add the list of Mnesia stores:
+Then add `mnesiac` to your supervision tree, passing in the cluster and the Mnesiac configuration:
 
-```elixir
-config :mnesiac,
-  stores: [Mnesiac.ExampleStore, ...],
-  schema_type: :disc_copies, # defaults to :ram_copies
-  table_load_timeout: 600_000 # milliseconds, default is 600_000
-```
+- Supported types:
+  - ram_copies.
+  - disc_copies.
+  - disc_only_copies.
 
-Then add `mnesiac` to your supervision tree:
+- Supported replication types:
+  - **_N_** nodes in Mnesia cluster (represented as positive integers).
+  - **_N%_** of nodes in Mnesia cluster (represented as `N.NN` floats, where `1.00` would be 100%).
+  - **_SPECIFIC_** nodes in Mnesia cluster (valid node names only).
+
+- Migrations:
+  - Only supports MFA tuples.
+  - Fires only in the presence of `migrations` key being defined. If present in `schema`, it will be silently ignored.
+  - `rollback_migration/1` needs to be called manually or it could be called from `init_migration/1` in a custom implementation.
 
 - **_EXAMPLE:_** With `libcluster` using the `Cluster.Strategy.Epmd` strategy:
 
@@ -39,11 +45,32 @@ Then add `mnesiac` to your supervision tree:
   ...
 
     topology = Application.get_env(:libcluster, :topologies)
-    hosts = topology[:myapp][:config][:hosts]
+    cluster = topology[:myapp][:config][:hosts]
+    config = [
+      schema: [ # default is :ram_copies, everywhere
+        disc_copies: [:n3@local, :n4@local, :n6@local],
+        ram_copies: [:n10@local, :n11@local]
+      ],
+      stores: [
+        [ # default is :ram_copies, everywhere
+          ref: Mnesiac.ExampleStore,
+          disc_copies: [:n3@local, :n4@local, :n6@local],
+          ram_copies: [:n10@local, :n11@local],
+          blacklist: [:n10@local, :n11@local]
+        ],
+        [
+          ref: Mnesiac.ExampleStoreTwo,
+          disc_copies: [:n10@local, :n11@local],
+          ram_copies: [:n3@local, :n4@local, :n6@local],
+          migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
+        ]
+      ],
+        store_load_timeout: 600_000
+    ]
 
     children = [
       {Cluster.Supervisor, [topology, [name: MyApp.ClusterSupervisor]]},
-      {Mnesiac.Supervisor, [hosts, [name: MyApp.MnesiacSupervisor]]},
+      {Mnesiac.Supervisor, [[cluster: cluster, config: config], [name: MyApp.MnesiacSupervisor]]},
       ...
     ]
 
@@ -59,7 +86,30 @@ Then add `mnesiac` to your supervision tree:
       {
         Mnesiac.Supervisor,
         [
-          [:"test01@127.0.0.1", :"test02@127.0.0.1"],
+          [
+            cluster: [:n3@local, :n4@local],
+            config: [
+              schema: [ # default is :ram_copies, everywhere
+                disc_copies: [:n3@local, :n4@local, :n6@local],
+                ram_copies: [:n10@local, :n11@local]
+              ],
+              stores: [
+                [ # default is :ram_copies, everywhere
+                  ref: Mnesiac.ExampleStore,
+                  disc_copies: [:n3@local, :n4@local, :n6@local],
+                  ram_copies: [:n10@local, :n11@local],
+                  blacklist: [:n10@local, :n11@local]
+                ],
+                [
+                  ref: Mnesiac.ExampleStoreTwo,
+                  disc_copies: [:n10@local, :n11@local],
+                  ram_copies: [:n3@local, :n4@local, :n6@local],
+                  migrations: [{Mnesiac.Test.Support.ExampleStore, :some_migration, []}]
+                ]
+              ],
+                store_load_timeout: 600_000
+            ]
+          ],
           [name: MyApp.MnesiacSupervisor]
         ]
       },
@@ -71,17 +121,23 @@ Then add `mnesiac` to your supervision tree:
 
 ## Usage
 
-### Table creation
+### Store creation
 
-Create a table store, `use Mnesiac.Store`, and add it to your app's config.exs.
+To create a store, `use Mnesiac.Store`, and ensure it's added to the config for Mnesiac you're passing in.
 
 All stores **_MUST_** implement its own `store_options/0`, which returns a keyword list of store options.
 
-There are three optional callbacks which can be implemented:
+There are nine optional callbacks which can be implemented:
 
-- `init_store/0`, which allows users to implement custom store initialization logic. Triggered by Mnesiac.
-- `copy_store/0`, which allows users to implement a custom call to copy a store. Triggered by Mnesiac.
-- `resolve_conflict/1`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node. Triggered by Mnesiac. Default is to do nothing.
+- `init_schema/1`, which allows users to implement custom schema initialization logic. Triggered by Mnesiac.
+- `copy_schema/2`, which allows users to implement a custom call to copy schema. Triggered by Mnesiac.
+- `init_store/1`, which allows users to implement custom store initialization logic. Triggered by Mnesiac.
+- `copy_store/1`, which allows users to implement a custom call to copy a store. Triggered by Mnesiac.
+- `init_migration/1`, which allows users to implement custom migration logic. Triggered by Mnesiac. Default is to do nothing.
+- `rollback_migration/1`, which allows users to implement custom migration rollback logic. Triggered by user. Default is to do nothing.
+- `refresh_cluster/1`, which allows users to implement custom logic to refresh Mnesia cluster. Triggered by user. Default is to do nothing.
+- `backup/1`, which allows users to implement custom logic to back up Mnesia stores. Triggered by user. Default is to do nothing.
+- `resolve_conflict/2`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node. Triggered by Mnesiac. Default is to do nothing.
 
 **_MINIMAL EXAMPLE:_**:
 
@@ -151,12 +207,20 @@ mix compile --force
 
 **_NOTICE:_** You can find the `asdf` tool [here][1].
 
+## Linting and static analysis
+
+Mnesiac provides a single command for linting and static analysis:
+
+```shell
+mix check
+```
+
 ## Testing
 
 Before you run any tests, ensure that you have cleaned up Mnesia:
 
 ```shell
-mix purge.db
+mix db.purge
 ```
 
 Test results and coverage reports are generated by running the following:
