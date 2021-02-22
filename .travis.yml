@@ -34,7 +34,7 @@ before_script:
   - mix deps.get --force
   - mix deps.compile --force
   - mix compile --force
-  - travis_wait 30 mix dialyzer --plt
+  - travis_wait 45 mix dialyzer --plt
   - MIX_ENV=test mix deps.get --force
   - MIX_ENV=test mix deps.compile --force
 script:
