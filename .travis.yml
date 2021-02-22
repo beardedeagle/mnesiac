@@ -4,11 +4,12 @@ elixir:
   - 1.8.2
   - 1.9.4
   - 1.10.4
+  - 1.11.3
 otp_release:
   - 20.3.8.22
   - 21.3.8.1
   - 22.3.4
-  - 23.0.3
+  - 23.2.5
 git:
   quiet: true
 env:
@@ -21,9 +22,9 @@ cache:
 jobs:
   exclude:
   - elixir: 1.8.2
-    otp_release: 23.0.3
+    otp_release: 23.2.5
   - elixir: 1.9.4
-    otp_release: 23.0.3
+    otp_release: 23.2.5
   - elixir: 1.10.4
     otp_release: 20.3.8.22
 before_script:
