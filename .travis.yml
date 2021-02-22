@@ -27,6 +27,8 @@ jobs:
     otp_release: 23.0.3
   - elixir: 1.10.4
     otp_release: 20.3.8.22
+  - elixir: 1.11.3
+    otp_release: 20.3.8.22
 before_script:
   - mkdir -p $PLT_DIR
   - mix deps.get --force
