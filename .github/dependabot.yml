@@ -1,0 +1,34 @@
+version: 2
+updates:
+- package-ecosystem: mix
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "11:00"
+  open-pull-requests-limit: 10
+  reviewers:
+  - beardedeagle
+  assignees:
+  - beardedeagle
+  labels:
+  - dependabot
+  ignore:
+  - dependency-name: ex_doc
+    versions:
+    - 0.23.0
+    - 0.24.0
+    - 0.24.1
+  - dependency-name: libcluster
+    versions:
+    - 3.2.2
+  - dependency-name: dialyxir
+    versions:
+    - 1.1.0
+  - dependency-name: excoveralls
+    versions:
+    - 0.13.4
+    - 0.14.0
+  - dependency-name: credo
+    versions:
+    - 1.5.4
+    - 1.5.5
