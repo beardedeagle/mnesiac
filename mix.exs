@@ -6,8 +6,8 @@ defmodule Mnesiac.MixProject do
   def project do
     [
       app: :mnesiac,
-      version: "0.3.9",
-      elixir: "~> 1.8",
+      version: "0.4.0",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -47,9 +47,9 @@ defmodule Mnesiac.MixProject do
           "format --check-formatted --dry-run",
           "compile --warning-as-errors --force",
           "credo --strict --all",
-          "inch"
+          "doctor"
         ],
-        "purge.db": &purge_db/1
+        "db.purge": &purge_db/1
       ],
       name: "Mnesiac",
       source_url: "https://github.com/beardedeagle/mnesiac",
@@ -69,13 +69,15 @@ defmodule Mnesiac.MixProject do
 
   defp deps do
     [
-      {:libcluster, "~> 3.2", optional: true},
+      {:libcluster, "~> 3.3", optional: true},
       {:credo, "~> 1.5", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.23", only: [:dev], runtime: false},
-      {:ex_unit_clustered_case, "~> 0.4", only: [:test]},
+      {:doctor, "~> 0.18", only: [:dev], runtime: false},
+      {:ex_check, "~> 0.14", only: [:dev], runtime: false},
+      {:ex_doc, "~> 0.25", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.14", only: [:test], runtime: false},
-      {:inch_ex, "~> 2.0", only: [:dev], runtime: false}
+      {:local_cluster, "~> 1.2", only: [:test]},
+      {:mix_audit, "~> 0.1", only: [:dev], runtime: false}
     ]
   end
 
