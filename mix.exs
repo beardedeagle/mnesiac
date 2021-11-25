@@ -70,11 +70,11 @@ defmodule Mnesiac.MixProject do
   defp deps do
     [
       {:libcluster, "~> 3.3", optional: true},
-      {:credo, "~> 1.5", only: [:dev], runtime: false},
+      {:credo, "~> 1.6", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev], runtime: false},
       {:doctor, "~> 0.18", only: [:dev], runtime: false},
       {:ex_check, "~> 0.14", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.25", only: [:dev], runtime: false},
+      {:ex_doc, "~> 0.26", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.14", only: [:test], runtime: false},
       {:local_cluster, "~> 1.2", only: [:test]},
       {:mix_audit, "~> 0.1", only: [:dev], runtime: false}
