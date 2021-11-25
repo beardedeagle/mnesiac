@@ -4,8 +4,8 @@ defmodule Mnesiac.Store do
   """
 
   @doc """
-  This function returns ths store's configuration as a keyword list.
-  For more information on the options supported here, see mnesia's documenatation.
+  This function returns the store's configuration as a keyword list.
+  For more information on the options supported here, see mnesia's documentation.
   ## Examples
   ```elixir
   iex> store_options()

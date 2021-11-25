@@ -26,7 +26,7 @@ Edit your app's config.exs to add the list of Mnesia stores:
 
 ```elixir
 config :mnesiac,
-  stores: [Mnesiac.ExampleStore, ...],
+  stores: [MyApp.ExampleStore, ...],
   schema_type: :disc_copies, # defaults to :ram_copies
   table_load_timeout: 600_000 # milliseconds, default is 600_000
 ```
@@ -83,7 +83,7 @@ There are three optional callbacks which can be implemented:
 - `copy_store/0`, which allows users to implement a custom call to copy a store. Triggered by Mnesiac.
 - `resolve_conflict/1`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node. Triggered by Mnesiac. Default is to do nothing.
 
-**_MINIMAL EXAMPLE:_**:
+**_MINIMAL EXAMPLE:_**
 
 ```elixir
 defmodule MyApp.ExampleStore do
@@ -96,7 +96,7 @@ defmodule MyApp.ExampleStore do
   @doc """
   Record definition for ExampleStore example record.
   """
-  Record.defrecord(
+  defrecord(
     :example,
     __MODULE__,
     id: nil,
@@ -118,7 +118,7 @@ defmodule MyApp.ExampleStore do
   @impl true
   def store_options,
     do: [
-      record_name: __MODULE__,
+      record_name: :example,
       attributes: example() |> example() |> Keyword.keys(),
       index: [:topic_id],
       ram_copies: [node()]
