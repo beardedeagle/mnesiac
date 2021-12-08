@@ -27,7 +27,9 @@ defmodule Mnesiac do
 
   @typedoc """
   Defines the configuration for mnesiac.
+
   ## Example
+
   ```elixir
   %Mnesiac{
     schema: %Mnesiac.Store{
@@ -70,7 +72,9 @@ defmodule Mnesiac do
 
   @doc """
   Initialize Mnesia. Filters out cluster nodes not explicitly passed in.
+
   ## Example
+
   ```elixir
   config = [
     schema: [
@@ -98,6 +102,9 @@ defmodule Mnesiac do
 
   @doc """
   Validate configuration being passed in to Mnesiac will build to a proper Mneisac configuration struct.
+
+  ## Example
+
   ```elixir
   Mnesiac.validate_config(config)
   {:ok,
@@ -126,7 +133,8 @@ defmodule Mnesiac do
           ref: Mnesiac.ExampleStoreTwo
         }
       ]
-    }}
+    }
+  }
   ```
   """
   @spec validate_config(
@@ -137,7 +145,9 @@ defmodule Mnesiac do
 
   @doc """
   Get the cluster status.
+
   ## Example
+
   ```elixir
   Mnesiac.cluster_status()
   {:ok, [running_nodes: [:nonode@nohost]]}
@@ -158,7 +168,9 @@ defmodule Mnesiac do
 
   @doc """
   Returns a list of running Mnesia cluster nodes.
+
   ## Example
+
   ```elixir
   Mnesiac.running_nodes()
   {:ok, [:nonode@nohost]}
@@ -169,7 +181,9 @@ defmodule Mnesiac do
 
   @doc """
   Is this node in the Mnesia cluster?
+
   ## Example
+
   ```elixir
   Mnesiac.node_in_cluster?(node())
   true
@@ -180,7 +194,9 @@ defmodule Mnesiac do
 
   @doc """
   Is this node running Mnesia?
+
   ## Example
+
   ```elixir
   Mnesiac.running_db_node?(node())
   true

@@ -44,8 +44,8 @@ defmodule Mnesiac.Store do
             blacklist: []
 
   @doc """
-  Returns ths store's configuration as a keyword list.
-  For more information on the options supported here, please see mnesia's documenatation.
+  Returns the store's configuration as a keyword list.
+  For more information on the options supported here, please see mnesia's documentation.
 
   ## Example
 
@@ -125,6 +125,8 @@ defmodule Mnesiac.Store do
     :ok
   end
   ```
+
+  **Note**: The default implementation is to do nothing.
   """
   @callback refresh_cluster(config :: struct()) :: term()
 
@@ -192,6 +194,8 @@ defmodule Mnesiac.Store do
 
   @doc """
   Called by user when the cluster needs to be refreshed.
+
+  **Note**: The default implementation is to do nothing.
   """
   @spec refresh_cluster(Store.t()) :: :ok
   def refresh_cluster(_config), do: :ok

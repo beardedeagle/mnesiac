@@ -48,13 +48,13 @@ Then add `mnesiac` to your supervision tree, passing in the cluster and the Mnes
       ],
       stores: [
         [ # default is :ram_copies, everywhere
-          ref: Mnesiac.ExampleStore,
+          ref: MyApp.ExampleStore,
           disc_copies: [:n3@local, :n4@local, :n6@local],
           ram_copies: [:n10@local, :n11@local],
           blacklist: [:n10@local, :n11@local]
         ],
         [
-          ref: Mnesiac.ExampleStoreTwo,
+          ref: MyApp.ExampleStoreTwo,
           disc_copies: [:n10@local, :n11@local],
           ram_copies: [:n3@local, :n4@local, :n6@local]
         ]
@@ -89,13 +89,13 @@ Then add `mnesiac` to your supervision tree, passing in the cluster and the Mnes
               ],
               stores: [
                 [ # default is :ram_copies, everywhere
-                  ref: Mnesiac.ExampleStore,
+                  ref: MyApp.ExampleStore,
                   disc_copies: [:n3@local, :n4@local, :n6@local],
                   ram_copies: [:n10@local, :n11@local],
                   blacklist: [:n10@local, :n11@local]
                 ],
                 [
-                  ref: Mnesiac.ExampleStoreTwo,
+                  ref: MyApp.ExampleStoreTwo,
                   disc_copies: [:n10@local, :n11@local],
                   ram_copies: [:n3@local, :n4@local, :n6@local]
                 ]
@@ -129,7 +129,7 @@ There are nine optional callbacks which can be implemented:
 - `refresh_cluster/1`, which allows users to implement custom logic to refresh Mnesia cluster. Triggered by user. Default is to do nothing.
 - `resolve_conflict/2`, which allows a user to implement logic when Mnesiac detects a store with records on both the local and remote Mnesia cluster node. Triggered by Mnesiac. Default is to do nothing.
 
-**_MINIMAL EXAMPLE:_**:
+**_MINIMAL EXAMPLE:_**
 
 ```elixir
 defmodule MyApp.ExampleStore do
@@ -142,7 +142,7 @@ defmodule MyApp.ExampleStore do
   @doc """
   Record definition for ExampleStore example record.
   """
-  Record.defrecord(
+  defrecord(
     :example,
     __MODULE__,
     id: nil,
@@ -164,7 +164,7 @@ defmodule MyApp.ExampleStore do
   @impl true
   def store_options,
     do: [
-      record_name: __MODULE__,
+      record_name: :example,
       attributes: example() |> example() |> Keyword.keys(),
       index: [:topic_id],
       ram_copies: [node()]

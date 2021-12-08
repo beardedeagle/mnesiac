@@ -7,6 +7,8 @@ defmodule Mnesiac.Supervisor do
   @doc """
   Entry point for Mnesiac when used in a supervision tree.
 
+  ## Example
+
   ```elixir
   config = [
     schema: [
@@ -32,7 +34,8 @@ defmodule Mnesiac.Supervisor do
   Mnesiac.Supervisor.start_link([cluster: [node()], config: config])
   ```
   """
-  @spec start_link(init_arg :: [Mnesiac.init_arg() | keyword()] | Mnesiac.init_arg()) :: :ignore | {:error, term()} | {:ok, pid()}
+  @spec start_link(init_arg :: [Mnesiac.init_arg() | keyword()] | Mnesiac.init_arg()) ::
+          :ignore | {:error, term()} | {:ok, pid()}
   def start_link([[cluster: _cluster, config: _config], opts] = init_arg) do
     Supervisor.start_link(__MODULE__, init_arg, opts)
   end

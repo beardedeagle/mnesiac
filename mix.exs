@@ -1,13 +1,12 @@
 defmodule Mnesiac.MixProject do
   @moduledoc false
-  require Logger
   use Mix.Project
 
   def project do
     [
       app: :mnesiac,
       version: "0.4.0",
-      elixir: "~> 1.10",
+      elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -77,7 +76,7 @@ defmodule Mnesiac.MixProject do
       {:ex_doc, "~> 0.26", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.14", only: [:test], runtime: false},
       {:local_cluster, "~> 1.2", only: [:test]},
-      {:mix_audit, "~> 0.1", only: [:dev], runtime: false}
+      {:mix_audit, "~> 1.0", only: [:dev], runtime: false}
     ]
   end
 
@@ -85,7 +84,7 @@ defmodule Mnesiac.MixProject do
     if Mix.env() in [:dev, :test] do
       Mix.shell().cmd("rm -rf ./test0* ./Mnesia.nonode@nohost")
     else
-      Logger.info("[mnesiac:#{node()}] purge.db can only be used in dev and test env")
+      Mix.shell().info("[mnesiac:#{node()}] purge.db can only be used in dev and test env")
     end
   end
 end
