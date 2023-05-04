@@ -125,7 +125,7 @@ defmodule Mnesiac.StoreManager do
   This function returns a map of tables and their cookies.
   """
   def get_table_cookies(node \\ node()) do
-    tables = :rpc.call(node, :mnesia, :system_info, [:tables])
+    tables = :rpc.call(node, :mnesia, :system_info, [:local_tables])
 
     Enum.reduce(tables, %{}, fn t, acc ->
       Map.put(acc, t, :rpc.call(node, :mnesia, :table_info, [t, :cookie]))
