@@ -6,7 +6,7 @@ defmodule Mnesiac.MixProject do
   def project do
     [
       app: :mnesiac,
-      version: "0.3.10",
+      version: "0.3.11",
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: [tool: ExCoveralls],
