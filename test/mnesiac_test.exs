@@ -87,13 +87,13 @@ defmodule MnesiacTest do
     test "cluster status", %{cluster: cluster} do
       [node_a] = Cluster.members(cluster)
 
-      assert [{:running_nodes, [node_a]}] = Cluster.call(node_a, Mnesiac, :cluster_status, [])
+      assert [{:running_nodes, [^node_a]}] = Cluster.call(node_a, Mnesiac, :cluster_status, [])
     end
 
     test "running nodes", %{cluster: cluster} do
       [node_a] = Cluster.members(cluster)
 
-      assert [node_a] = Cluster.call(node_a, Mnesiac, :running_nodes, [])
+      assert [^node_a] = Cluster.call(node_a, Mnesiac, :running_nodes, [])
     end
 
     test "node in cluster", %{cluster: cluster} do
@@ -128,13 +128,13 @@ defmodule MnesiacTest do
     test "cluster status", %{cluster: cluster} do
       [node_a] = Cluster.members(cluster)
 
-      assert [{:running_nodes, [node_a]}] = Cluster.call(node_a, Mnesiac, :cluster_status, [])
+      assert [{:running_nodes, [^node_a]}] = Cluster.call(node_a, Mnesiac, :cluster_status, [])
     end
 
     test "running nodes", %{cluster: cluster} do
       [node_a] = Cluster.members(cluster)
 
-      assert [node_a] = Cluster.call(node_a, Mnesiac, :running_nodes, [])
+      assert [^node_a] = Cluster.call(node_a, Mnesiac, :running_nodes, [])
     end
 
     test "node in cluster", %{cluster: cluster} do
@@ -178,15 +178,15 @@ defmodule MnesiacTest do
     test "cluster status", %{cluster: cluster} do
       [node_a, node_b] = Cluster.members(cluster)
 
-      assert [{:running_nodes, [node_a, node_b]}] = Cluster.call(node_a, Mnesiac, :cluster_status, [])
-      assert [{:running_nodes, [node_a, node_b]}] = Cluster.call(node_b, Mnesiac, :cluster_status, [])
+      assert [{:running_nodes, [^node_b, ^node_a]}] = Cluster.call(node_a, Mnesiac, :cluster_status, [])
+      assert [{:running_nodes, [^node_a, ^node_b]}] = Cluster.call(node_b, Mnesiac, :cluster_status, [])
     end
 
     test "running nodes", %{cluster: cluster} do
       [node_a, node_b] = Cluster.members(cluster)
 
-      assert [node_a, node_b] = Cluster.call(node_a, Mnesiac, :running_nodes, [])
-      assert [node_a, node_b] = Cluster.call(node_b, Mnesiac, :running_nodes, [])
+      assert [^node_b, ^node_a] = Cluster.call(node_a, Mnesiac, :running_nodes, [])
+      assert [^node_a, ^node_b] = Cluster.call(node_b, Mnesiac, :running_nodes, [])
     end
 
     test "node in cluster", %{cluster: cluster} do
