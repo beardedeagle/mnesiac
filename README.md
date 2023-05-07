@@ -6,7 +6,7 @@ Mnesia auto clustering made easy!
 
 Docs can be found at [https://hexdocs.pm/mnesiac](https://hexdocs.pm/mnesiac).
 
-**_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the API can, and may, change at any time. Please ensure you review the docs and changelog prior to updating.
+**_NOTICE:_** Mnesiac, while stable, is still considered pre `1.0`. This means the API can, and may, change at any time. Please ensure you review the docs and changelog prior to updating, or pin the version of mnesiac you are using in `mix.exs` if necessary.
 
 **_NOTICE:_** Mnesiac allows a significant amount of freedom with how it behaves. This allows you to customize Mnesiac to suit your needs. However, this also allows for a fair amount of foot gunning. Please ensure you've done your due diligence when using this library, or Mnesia itself for that matter. It isn't a silver bullet, and it shouldn't be treated as one.
 
