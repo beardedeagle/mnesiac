@@ -1,6 +1,6 @@
 # Mnesiac
 
-[![CI](https://github.com/beardedeagle/mnesiac/actions/workflows/ci.yml/badge.svg)](https://github.com/beardedeagle/mnesiac/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/beardedeagle/mnesiac/branch/master/graph/badge.svg)](https://codecov.io/gh/beardedeagle/mnesiac) [![Hex.pm](http://img.shields.io/hexpm/v/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac) [![Hex.pm downloads](https://img.shields.io/hexpm/dt/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac)
+[![CI](https://github.com/beardedeagle/mnesiac/actions/workflows/ci.yml/badge.svg)](https://github.com/beardedeagle/mnesiac/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/beardedeagle/mnesiac/badge.svg?branch=master)](https://coveralls.io/github/beardedeagle/mnesiac?branch=master) [![Hex.pm](http://img.shields.io/hexpm/v/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac) [![Hex.pm downloads](https://img.shields.io/hexpm/dt/mnesiac.svg?style=flat)](https://hex.pm/packages/mnesiac)
 
 Mnesia auto clustering made easy!
 
