@@ -5,8 +5,8 @@ defmodule Mnesiac.MixProject do
   def project do
     [
       app: :mnesiac,
-      version: "0.3.13",
-      elixir: "~> 1.8",
+      version: "0.3.14",
+      elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -18,14 +18,15 @@ defmodule Mnesiac.MixProject do
         "coveralls.html": :test
       ],
       dialyzer: [
+        plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
+        plt_add_apps: [:mnesia],
         flags: [
           "-Wunmatched_returns",
           "-Werror_handling",
           "-Wrace_conditions",
           "-Wno_opaque",
           "-Wunderspecs"
-        ],
-        plt_add_deps: :transitive
+        ]
       ],
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,

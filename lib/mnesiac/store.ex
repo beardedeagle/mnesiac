@@ -81,7 +81,7 @@ defmodule Mnesiac.Store do
 
       def resolve_conflict(cluster_node) do
         table_name = Keyword.get(store_options(), :record_name, __MODULE__)
-        Logger.info(fn -> "[mnesiac:#{node()}] #{inspect(table_name)}: data found on both sides, copy aborted." end)
+        _ = Logger.info(fn -> "[mnesiac:#{node()}] #{inspect(table_name)}: data found on both sides, copy aborted." end)
 
         :ok
       end

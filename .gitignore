@@ -16,5 +16,6 @@ erl_crash.dump
 Mnesia*
 mnesiac-*.tar
 mnesiac.iml
+priv
 test0*
 tmp
