@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        otp: ['20.3', '21.3', '22.3', '23.3.4', '24.3.4']
+        elixir: ['1.9.4', '1.10.4', '1.11.4']
+        exclude:
+          - otp: 23.3.4
+            elixir: 1.9.4
+          - otp: 24.3.4
+            elixir: 1.9.4
+          - otp: 20.3
+            elixir: 1.10.4
+          - otp: 24.3.4
+            elixir: 1.10.4
+          - otp: 20.3
+            elixir: 1.11.4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up OTP/Elxir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+
+      - name: Cache deps
+        id: cache-deps
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-deps
+        with:
+          path: deps
+          key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+
+      - name: Cache compiled build
+        id: cache-build
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-compiled-build
+        with:
+          path: _build
+          key: build-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ env.cache-name }}-${{ hashFiles('lib/**', 'test/**', '*.exs') }}
+          restore-keys: |
+            build-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ env.cache-name }}-${{ hashFiles('lib/**', 'test/**', '*.exs') }}
+
+      - name: Install dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: |
+          mix deps.get --force
+          MIX_ENV=test mix deps.get --force
+
+      - name: Compile dependencies
+        if: steps.cache-build.outputs.cache-hit != 'true'
+        run: |
+          mix deps.compile --force
+          MIX_ENV=test mix deps.compile --force
+
+      - name: Compile project
+        if: steps.cache-build.outputs.cache-hit != 'true'
+        run: |
+          mix compile --force --warnings-as-errors
+          MIX_ENV=test mix compile --force --warnings-as-errors
+
+      - name: Restore PLT cache
+        id: plt_cache
+        uses: actions/cache/restore@v3
+        with:
+          key: |
+            ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plt
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plt
+          path: |
+            priv/plts
+
+      - name: Create PLTs
+        if: steps.plt_cache.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
+
+      - name: Save PLT cache
+        id: plt_cache_save
+        uses: actions/cache/save@v3
+        if: steps.plt_cache.outputs.cache-hit != 'true'
+        with:
+          key: |
+            ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plt
+          path: |
+            priv/plts
+
+      - name: Check formatting
+        run: mix format --check-formatted --dry-run
+
+      - name: Check docs
+        run:  mix doctor --raise
+
+      - name: Check linter
+        run: mix credo --strict --all
+
+      - name: Check static analysis
+        run: mix dialyzer --no-check --format github
+
+      - name: Check tests
+        uses: nick-fields/retry@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          timeout_seconds: 30
+          max_attempts: 3
+          retry_on: error
+          command: |
+            mix purge.db
+            MIX_ENV=test mix coveralls.github --no-start

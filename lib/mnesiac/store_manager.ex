@@ -40,6 +40,7 @@ defmodule Mnesiac.StoreManager do
   """
   def create_tables do
     Enum.each(stores(), fn data_mapper ->
+      # credo:disable-for-next-line
       apply(data_mapper, :init_store, [])
     end)
 
@@ -55,16 +56,19 @@ defmodule Mnesiac.StoreManager do
       Enum.each(stores(), fn data_mapper ->
         case {local_cookies[data_mapper], remote_cookies[data_mapper]} do
           {nil, nil} ->
+            # credo:disable-for-next-line
             apply(data_mapper, :init_store, [])
 
           {nil, _} ->
+            # credo:disable-for-next-line
             apply(data_mapper, :copy_store, [])
 
           {_, nil} ->
-            Logger.info("[mnesiac:#{node()}] #{inspect(data_mapper)}: no remote data to copy found.")
+            _ = Logger.info("[mnesiac:#{node()}] #{inspect(data_mapper)}: no remote data to copy found.")
             {:error, :no_remote_data_to_copy}
 
           {_local, _remote} ->
+            # credo:disable-for-next-line
             apply(data_mapper, :resolve_conflict, [cluster_node])
         end
       end)
