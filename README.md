@@ -118,13 +118,15 @@ defmodule MyApp.ExampleStore do
   @impl true
   def store_options,
     do: [
-      record_name: :example,
+      record_name: __MODULE__,
       attributes: example() |> example() |> Keyword.keys(),
       index: [:topic_id],
       ram_copies: [node()]
     ]
 end
 ```
+
+**_The [mnesia record name](https://www.erlang.org/doc/man/mnesia.html#type-create_option) must match the [record tag](https://hexdocs.pm/elixir/Record.html#defrecord/3) value to ensure copy works correctly when joining cluster_**
 
 ### Clustering
 
